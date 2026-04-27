@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki Frontend Dev — HTML, CSS & JavaScript</title>
+<style>
+  /* ===== PRINT & BASE ===== */
+  @media print {
+    .no-print { display: none; }
+    body { background: #fff !important; color: #111 !important; }
+    .page-break { page-break-before: always; }
+    pre, code { background: #f4f4f4 !important; color: #222 !important; border: 1px solid #ddd !important; }
+    .chapter-header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .chapter-header h1, .chapter-header .chapter-num { color: #fff !important; }
+    .tag-pill { background: #e8f4ff !important; color: #1a4a7a !important; border: 1px solid #aad !important; }
+    a { color: #333 !important; text-decoration: none; }
+    .cover { background: #0d0d1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+ 
+  /* ===== FONTS & ROOT ===== */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+ 
+  :root {
+    --bg: #0d0d1a;
+    --bg2: #12122a;
+    --bg3: #1a1a35;
+    --surface: #1e1e3f;
+    --surface2: #252550;
+    --border: #2a2a5a;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --accent3: #38bdf8;
+    --green: #34d399;
+    --orange: #fb923c;
+    --red: #f87171;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --code-bg: #0a0a1f;
+    --html-color: #f97316;
+    --css-color: #38bdf8;
+    --js-color: #fbbf24;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(108,99,255,0.15);
+  }
+ 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+ 
+  /* ===== LAYOUT ===== */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+ 
+  /* ===== COVER PAGE ===== */
+  .cover {
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(108,99,255,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(56,189,248,0.12) 0%, transparent 55%);
+  }
+  .cover-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border: 1px solid var(--accent);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .cover h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2) 70%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .cover-sub {
+    font-size: 1.1rem;
+    color: var(--text2);
+    max-width: 540px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .cover-meta {
+    position: relative;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .cover-meta span {
+    font-size: 13px;
+    color: var(--text3);
+  }
+  .cover-meta strong { color: var(--text2); }
+  .cover-langs {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .lang-pill {
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .lang-pill.html { background: rgba(249,115,22,0.15); color: var(--html-color); border: 1px solid rgba(249,115,22,0.3); }
+  .lang-pill.css  { background: rgba(56,189,248,0.15); color: var(--css-color); border: 1px solid rgba(56,189,248,0.3); }
+  .lang-pill.js   { background: rgba(251,191,36,0.15); color: var(--js-color); border: 1px solid rgba(251,191,36,0.3); }
+ 
+  /* ===== TOC ===== */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 48px;
+    margin: 48px 0;
+  }
+  .toc h2 { font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent2); margin-bottom: 24px; }
+  .toc ol { list-style: none; counter-reset: toc-counter; }
+  .toc ol li { counter-increment: toc-counter; display: flex; align-items: baseline; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .toc ol li:last-child { border-bottom: none; }
+  .toc ol li::before { content: "0" counter(toc-counter); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 700; min-width: 28px; }
+  .toc ol li span { font-weight: 500; color: var(--text); }
+  .toc ol li em { margin-left: auto; font-size: 12px; font-style: normal; color: var(--text3); }
+ 
+  /* ===== CHAPTER HEADER ===== */
+  .chapter-header {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--bg3) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 48px;
+    margin: 64px 0 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .chapter-header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%);
+  }
+  .chapter-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .chapter-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .chapter-header p {
+    color: var(--text2);
+    font-size: 0.95rem;
+    max-width: 600px;
+    margin: 0;
+  }
+  .chapter-icon {
+    position: absolute;
+    top: 48px; right: 48px;
+    font-size: 3rem;
+    opacity: 0.15;
+  }
+ 
+  /* ===== SECTION HEADINGS ===== */
+  h2.section {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 48px 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2.section::before {
+    content: '';
+    display: inline-block;
+    width: 4px; height: 20px;
+    border-radius: 4px;
+    background: var(--accent);
+  }
+  h3.subsection {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin: 32px 0 12px;
+  }
+ 
+  /* ===== PROSE ===== */
+  p { color: var(--text); margin-bottom: 16px; line-height: 1.75; }
+  strong { color: #fff; font-weight: 600; }
+  em { color: var(--accent2); font-style: italic; }
+ 
+  /* ===== ANALOGY BOX ===== */
+  .analogy {
+    background: linear-gradient(135deg, rgba(108,99,255,0.08), rgba(167,139,250,0.05));
+    border: 1px solid rgba(108,99,255,0.25);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+  .analogy-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .analogy p { color: var(--text2); margin: 0; font-style: italic; }
+ 
+  /* ===== INFO / TIP / WARNING ===== */
+  .tip, .warning, .info {
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 0.9rem;
+  }
+  .tip { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25); border-left: 3px solid var(--green); }
+  .tip::before { content: "✓ Dica: "; font-weight: 700; color: var(--green); }
+  .warning { background: rgba(251,146,60,0.08); border: 1px solid rgba(251,146,60,0.25); border-left: 3px solid var(--orange); }
+  .warning::before { content: "⚠ Atenção: "; font-weight: 700; color: var(--orange); }
+  .info { background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.2); border-left: 3px solid var(--accent3); }
+  .info::before { content: "ℹ Nota: "; font-weight: 700; color: var(--accent3); }
+ 
+  /* ===== CODE BLOCKS ===== */
+  .code-wrap {
+    margin: 20px 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .code-lang.html { color: var(--html-color); }
+  .code-lang.css  { color: var(--css-color); }
+  .code-lang.js   { color: var(--js-color); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+  pre {
+    background: var(--code-bg);
+    padding: 20px 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c9d1d9;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--surface2);
+    color: var(--accent2);
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+ 
+  /* Syntax highlight classes */
+  .kw  { color: #ff79c6; }   /* keywords */
+  .str { color: #f1fa8c; }   /* strings */
+  .cm  { color: #6272a4; font-style: italic; } /* comments */
+  .fn  { color: #50fa7b; }   /* functions */
+  .num { color: #bd93f9; }   /* numbers */
+  .tag { color: #ff79c6; }   /* html tags */
+  .attr{ color: #50fa7b; }   /* attributes */
+  .val { color: #f1fa8c; }   /* values */
+  .prop{ color: #8be9fd; }   /* css properties */
+  .sel { color: #ff79c6; }   /* css selectors */
+  .unit{ color: #bd93f9; }   /* css units */
+  .var2{ color: #8be9fd; }   /* variables */
+ 
+  /* ===== TAG REFERENCE CARDS ===== */
+  .tag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .tag-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+  }
+  .tag-card:hover { border-color: var(--accent); }
+  .tag-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--html-color);
+    margin-bottom: 6px;
+  }
+  .tag-card p { font-size: 13px; color: var(--text2); margin: 0; line-height: 1.5; }
+ 
+  /* ===== TABLES ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 13.5px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  thead th {
+    background: var(--surface2);
+    color: var(--accent2);
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--accent);
+  }
+  tbody td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  tbody td:first-child { font-family: 'JetBrains Mono', monospace; color: var(--accent3); font-size: 12.5px; }
+ 
+  /* ===== ASCII DIAGRAM ===== */
+  .diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 24px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text2);
+    margin: 24px 0;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+ 
+  /* ===== CSS PROPERTY CARDS ===== */
+  .prop-list { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
+  .prop-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+  }
+  .prop-item h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--css-color);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .prop-item p { font-size: 13.5px; color: var(--text2); margin-bottom: 10px; }
+  .prop-item .mini-code {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #c9d1d9;
+    border: 1px solid var(--border);
+  }
+ 
+  /* ===== CHALLENGE CARDS ===== */
+  .challenge-grid { display: flex; flex-direction: column; gap: 16px; margin: 24px 0; }
+  .challenge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .challenge-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--border);
+    min-width: 40px;
+    line-height: 1;
+    padding-top: 4px;
+  }
+  .challenge h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .challenge p { font-size: 13px; color: var(--text2); margin: 0; }
+  .diff-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .easy   { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+  .medium { background: rgba(251,191,36,0.15); color: var(--js-color); border: 1px solid rgba(251,191,36,0.3); }
+  .hard   { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+ 
+  /* ===== PALETTE ===== */
+  .palette { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .swatch { width: 60px; text-align: center; }
+  .swatch-color { width: 60px; height: 60px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 6px; }
+  .swatch p { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin: 0; }
+ 
+  /* ===== CHEATSHEET TABLE ===== */
+  .cheat-section { margin: 32px 0; }
+  .cheat-section h3 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+ 
+  /* ===== DIVIDER ===== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 48px 0;
+  }
+ 
+  /* ===== NEXT STEPS ===== */
+  .next-steps {
+    background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(56,189,248,0.05));
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: var(--radius);
+    padding: 32px 40px;
+    margin: 40px 0;
+  }
+  .next-steps h3 { color: var(--accent2); margin-bottom: 16px; }
+  .next-steps p, .next-steps li { color: var(--text2); font-size: 14px; }
+  .next-steps ul { padding-left: 20px; }
+  .next-steps li { margin-bottom: 8px; }
+ 
+  /* ===== INTRO ===== */
+  .intro-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 40px;
+    margin: 40px 0;
+  }
+  .intro-card h2 { font-size: 1.1rem; color: var(--accent2); margin-bottom: 16px; font-weight: 700; }
+  .intro-card p { color: var(--text2); font-size: 14px; margin-bottom: 12px; }
+  .intro-card p:last-child { margin-bottom: 0; }
+  .intro-list { list-style: none; padding: 0; }
+  .intro-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+  .intro-list li:last-child { border-bottom: none; }
+  .intro-list li::before { content: "→"; color: var(--accent); font-weight: 700; }
+ 
+  /* ===== FLOAT LABEL ===== */
+  .float-label {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+ 
+  ul, ol { padding-left: 24px; margin-bottom: 16px; }
+  li { margin-bottom: 6px; color: var(--text); }
+ 
+  a { color: var(--accent2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+ 
+<!-- ==================== CAPA ==================== -->
+<div class="cover">
+  <div class="cover-badge">Guia Pessoal de Referência</div>
+  <h1>Wiki Frontend Dev</h1>
+  <p class="cover-sub">O guia completo de HTML, CSS e JavaScript para criar interfaces modernas, profissionais e com identidade — do zero ao avançado.</p>
+  <div class="cover-langs">
+    <span class="lang-pill html">HTML</span>
+    <span class="lang-pill css">CSS</span>
+    <span class="lang-pill js">JS</span>
+  </div>
+  <div class="cover-meta">
+    <span><strong>Nível:</strong> Iniciante ao Avançado</span>
+    <span><strong>Foco:</strong> Fintech Dark UI · Vanilla</span>
+    <span><strong>Idioma:</strong> Português (BR)</span>
+  </div>
+</div>
+ 
+<!-- ==================== CONTAINER PRINCIPAL ==================== -->
+<div class="container">
+ 
+<!-- INTRO -->
+<div class="intro-card" style="margin-top:60px;">
+  <h2>Como usar este guia</h2>
+  <p>Este documento é a sua <strong>bíblia pessoal de frontend</strong>. Não é um curso — é um companheiro de trabalho. Você vai voltar aqui quando travar em alguma coisa, quando quiser relembrar um conceito, ou quando precisar de inspiração para um projeto novo.</p>
+  <p>Cada capítulo foi escrito como se um dev sênior estivesse do seu lado explicando: linguagem direta, analogias reais, código funcional. Nada de enrolação.</p>
+  <ul class="intro-list">
+    <li><strong>Capítulo 1 — HTML:</strong> A estrutura de tudo. Tags, semântica, esqueleto de projetos reais.</li>
+    <li><strong>Capítulo 2 — CSS:</strong> O estilo e a alma visual. Do layout dark fintech às animações suaves.</li>
+    <li><strong>Capítulo 3 — JavaScript:</strong> O comportamento da página. DOM, eventos, validação, efeitos.</li>
+    <li><strong>Capítulo 4 — Unindo os três:</strong> Mini-projeto completo comentado passo a passo.</li>
+    <li><strong>Capítulo 5 — Identidade Visual &amp; Criatividade:</strong> Paleta, tipografia, princípios de UI, como pensar fora da caixa.</li>
+    <li><strong>Capítulo 6 — Cheat Sheet:</strong> Referência rápida para usar enquanto trabalha.</li>
+  </ul>
+</div>
+ 
+<!-- ==================== CAPÍTULO 1 — HTML ==================== -->
+<div class="chapter-header page-break">
+  <span class="chapter-num">Capítulo 01</span>
+  <h1>HTML: A Estrutura das Coisas</h1>
+  <p>HTML é o esqueleto de toda página web. Antes do estilo, antes do comportamento — existe a estrutura. Entendê-la profundamente é a base de tudo.</p>
+  <span class="chapter-icon">🏗</span>
+</div>
+ 
+<div class="analogy">
+  <div class="analogy-label">🧠 Analogia Feynman</div>
+  <p>Pense em uma casa. Antes de pintar as paredes ou instalar a iluminação, você precisa do projeto arquitetônico e das paredes em pé. O HTML é exatamente isso — a planta e a estrutura física da sua interface. O CSS vai pintar. O JavaScript vai instalar os sistemas elétricos.</p>
+</div>
+ 
+<h2 class="section">O que é HTML, de verdade?</h2>
+<p>HTML significa <strong>HyperText Markup Language</strong>. Não é uma linguagem de programação — não tem lógica, não faz cálculos. É uma <strong>linguagem de marcação</strong>: você "marca" pedaços de texto dizendo o que eles são. Um título é um título. Um parágrafo é um parágrafo. Um botão é um botão.</p>
+<p>O navegador lê essa marcação e cria o que é chamado de <strong>DOM</strong> (Document Object Model) — uma árvore de objetos em memória que representa sua página. Tudo que você vai manipular com CSS e JS é, em última análise, essa árvore.</p>
+ 
+<h2 class="section">Tags Fundamentais — O que cada uma é e faz</h2>
+<p>Cada tag tem um <em>propósito semântico</em> — ou seja, não é só sobre aparência, mas sobre <strong>significado</strong>. Usar as tags certas ajuda na acessibilidade, no SEO e na manutenção do código.</p>
+ 
+<div class="tag-grid">
+  <div class="tag-card">
+    <div class="tag-name">&lt;!DOCTYPE html&gt;</div>
+    <p>Não é uma tag, é uma declaração. Diz ao navegador: "isso aqui é HTML5, processe com as regras modernas." Sempre na primeira linha.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;html lang="pt-BR"&gt;</div>
+    <p>A raiz. Envolve tudo. O atributo <code>lang</code> diz o idioma — essencial para leitores de tela e SEO.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;head&gt;</div>
+    <p>Cabeça invisível. Contém metadados, links de CSS, título da aba, fontes. O usuário não vê, mas o navegador usa tudo isso.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;meta charset="UTF-8"&gt;</div>
+    <p>Define a codificação de caracteres. UTF-8 suporta acentos, emojis e praticamente qualquer símbolo. Sem isso, "ação" vira "a??o".</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;meta name="viewport"&gt;</div>
+    <p>Crucial para responsividade. Diz ao navegador mobile para não fazer zoom automático. <code>width=device-width</code> é o padrão.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;title&gt;</div>
+    <p>O texto que aparece na aba do navegador e nos resultados de busca. Seja descritivo: "Login — ERP GENNUS" é melhor que "Página".</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;link&gt;</div>
+    <p>Conecta recursos externos: CSS, fontes, ícones. Atributos essenciais: <code>rel="stylesheet"</code> e <code>href="caminho.css"</code>.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;body&gt;</div>
+    <p>O corpo visível da página. Tudo que o usuário enxerga fica aqui. Filho direto de <code>&lt;html&gt;</code>.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;header&gt;</div>
+    <p>Cabeçalho da página ou de uma seção. Semanticamente representa a identidade de entrada: logo, nav, hero. Pode aparecer mais de uma vez.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;nav&gt;</div>
+    <p>Navegação principal. Envolve menus e links de rota. Leitores de tela identificam isso como área de navegação — não use <code>div</code> aqui.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;main&gt;</div>
+    <p>Conteúdo principal da página. Deve existir apenas uma vez por página. Tudo que é único e relevante entra aqui.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;section&gt;</div>
+    <p>Uma seção temática do conteúdo. Use quando o bloco tem sentido próprio — funcionalidades, depoimentos, preços. Geralmente tem um heading (<code>h2</code>).</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;div&gt;</div>
+    <p>Container genérico sem significado semântico. Use para agrupamento visual/estilístico quando nenhuma tag semântica fizer sentido. É o canivete suíço do HTML.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;h1&gt; → &lt;h6&gt;</div>
+    <p>Hierarquia de títulos. <code>h1</code> é o mais importante (um por página), <code>h6</code> o menos. Define a estrutura de leitura e SEO.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;p&gt;</div>
+    <p>Parágrafo. Texto corrido. O navegador adiciona margem automática entre parágrafos — você sobrescreve no CSS.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;span&gt;</div>
+    <p>Container inline genérico. Use para estilizar <em>parte</em> de um texto sem quebrar o fluxo. Ex: uma palavra com cor diferente.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;a href=""&gt;</div>
+    <p>Link. <code>href</code> é o destino. Use <code>target="_blank"</code> para abrir em nova aba (e adicione <code>rel="noopener"</code> por segurança).</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;img src="" alt=""&gt;</div>
+    <p>Imagem. O <code>alt</code> é obrigatório para acessibilidade — descreve a imagem para quem não pode vê-la. Tag auto-fechante.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;form&gt;</div>
+    <p>Formulário. Agrupa inputs e o botão de envio. Atributos: <code>action</code> (onde enviar), <code>method</code> (GET ou POST). No frontend moderno, o envio é feito via JS.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;input type=""&gt;</div>
+    <p>Campo de entrada. O <code>type</code> muda tudo: <code>text</code>, <code>email</code>, <code>password</code>, <code>checkbox</code>, <code>file</code>, <code>number</code>. Tag auto-fechante.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;label&gt;</div>
+    <p>Rótulo de um input. Conecte com <code>for="id-do-input"</code>. Clicar no label já foca o campo — melhora muito a usabilidade.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;button type=""&gt;</div>
+    <p><code>type="submit"</code> envia o form. <code>type="button"</code> não faz nada por padrão — ideal para ações controladas por JS. Sempre use <code>type</code>.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;footer&gt;</div>
+    <p>Rodapé. Contém créditos, links legais, redes sociais. Pode ser global ou de uma seção.</p>
+  </div>
+  <div class="tag-card">
+    <div class="tag-name">&lt;script src=""&gt;</div>
+    <p>Carrega ou executa JavaScript. Coloque sempre no final do <code>&lt;body&gt;</code> — assim o HTML carrega antes do script tentar manipulá-lo.</p>
+  </div>
+</div>
+ 
+<h2 class="section">Esqueleto de uma Landing Page</h2>
+<p>Abaixo o esqueleto comentado de uma landing page profissional — o padrão que você vai usar em praticamente qualquer projeto:</p>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang html">HTML · landing-page.html</span>
+  </div>
+<pre><code><span class="cm">&lt;!-- Declaração obrigatória. Sempre primeira linha. --&gt;</span>
+<span class="kw">&lt;!DOCTYPE</span> html<span class="kw">&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="str">"pt-BR"</span><span class="tag">&gt;</span>
+ 
+<span class="tag">&lt;head&gt;</span>
+  <span class="cm">&lt;!-- Codificação: suporte a acentos e caracteres especiais --&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span><span class="tag">&gt;</span>
+ 
+  <span class="cm">&lt;!-- Viewport: essencial para responsividade mobile --&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="str">"viewport"</span> <span class="attr">content</span>=<span class="str">"width=device-width, initial-scale=1.0"</span><span class="tag">&gt;</span>
+ 
+  <span class="cm">&lt;!-- Título que aparece na aba do navegador e no Google --&gt;</span>
+  <span class="tag">&lt;title&gt;</span>ERP GENNUS — Gestão Inteligente<span class="tag">&lt;/title&gt;</span>
+ 
+  <span class="cm">&lt;!-- Conecta o arquivo de estilos externo --&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"styles.css"</span><span class="tag">&gt;</span>
+ 
+  <span class="cm">&lt;!-- Fonte do Google Fonts --&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="str">"preconnect"</span> <span class="attr">href</span>=<span class="str">"https://fonts.googleapis.com"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;link</span> <span class="attr">href</span>=<span class="str">"https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap"</span>
+        <span class="attr">rel</span>=<span class="str">"stylesheet"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+ 
+<span class="tag">&lt;body&gt;</span>
+ 
+  <span class="cm">&lt;!-- CABEÇALHO: logo + navegação --&gt;</span>
+  <span class="tag">&lt;header</span> <span class="attr">class</span>=<span class="str">"site-header"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"container"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"#"</span> <span class="attr">class</span>=<span class="str">"logo"</span><span class="tag">&gt;</span>GENNUS<span class="tag">&lt;/a&gt;</span>
+      <span class="tag">&lt;nav</span> <span class="attr">class</span>=<span class="str">"main-nav"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"#funcionalidades"</span><span class="tag">&gt;</span>Funcionalidades<span class="tag">&lt;/a&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"#planos"</span><span class="tag">&gt;</span>Planos<span class="tag">&lt;/a&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"login.html"</span> <span class="attr">class</span>=<span class="str">"btn btn-outline"</span><span class="tag">&gt;</span>Login<span class="tag">&lt;/a&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"cadastro.html"</span> <span class="attr">class</span>=<span class="str">"btn btn-primary"</span><span class="tag">&gt;</span>Começar Grátis<span class="tag">&lt;/a&gt;</span>
+      <span class="tag">&lt;/nav&gt;</span>
+      <span class="cm">&lt;!-- Botão hambúrguer para mobile (controlado por JS) --&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="str">"menu-toggle"</span> <span class="attr">type</span>=<span class="str">"button"</span> <span class="attr">aria-label</span>=<span class="str">"Abrir menu"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;</span>
+      <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/header&gt;</span>
+ 
+  <span class="cm">&lt;!-- CONTEÚDO PRINCIPAL --&gt;</span>
+  <span class="tag">&lt;main&gt;</span>
+ 
+    <span class="cm">&lt;!-- HERO: primeira seção, o "gancho" da página --&gt;</span>
+    <span class="tag">&lt;section</span> <span class="attr">class</span>=<span class="str">"hero"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"container"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;h1&gt;</span>Gestão que acompanha o ritmo do seu negócio<span class="tag">&lt;/h1&gt;</span>
+        <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="str">"hero-sub"</span><span class="tag">&gt;</span>ERP inteligente, em tempo real, para quem não tem tempo a perder.<span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"cadastro.html"</span> <span class="attr">class</span>=<span class="str">"btn btn-primary btn-lg"</span><span class="tag">&gt;</span>Começar Gratuitamente<span class="tag">&lt;/a&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/section&gt;</span>
+ 
+    <span class="cm">&lt;!-- FUNCIONALIDADES: cards com features do sistema --&gt;</span>
+    <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="str">"funcionalidades"</span> <span class="attr">class</span>=<span class="str">"features"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"container"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;h2&gt;</span>Tudo que você precisa em um só lugar<span class="tag">&lt;/h2&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"features-grid"</span><span class="tag">&gt;</span>
+          <span class="cm">&lt;!-- Card de funcionalidade (repete N vezes) --&gt;</span>
+          <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"feature-card"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="str">"icons/dashboard.svg"</span> <span class="attr">alt</span>=<span class="str">"Dashboard"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;h3&gt;</span>Dashboard em Tempo Real<span class="tag">&lt;/h3&gt;</span>
+            <span class="tag">&lt;p&gt;</span>Visualize métricas críticas do seu negócio em segundos.<span class="tag">&lt;/p&gt;</span>
+          <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/section&gt;</span>
+ 
+  <span class="tag">&lt;/main&gt;</span>
+ 
+  <span class="cm">&lt;!-- RODAPÉ --&gt;</span>
+  <span class="tag">&lt;footer</span> <span class="attr">class</span>=<span class="str">"site-footer"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"container"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;p&gt;</span>&amp;copy; 2025 ERP GENNUS. Todos os direitos reservados.<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/footer&gt;</span>
+ 
+  <span class="cm">&lt;!-- Scripts no final do body: HTML já carregou antes de executar --&gt;</span>
+  <span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="str">"main.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+ 
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></code></pre>
+</div>
+ 
+<h2 class="section">Esqueleto de uma Página de Login</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang html">HTML · login.html</span>
+  </div>
+<pre><code><span class="tag">&lt;body</span> <span class="attr">class</span>=<span class="str">"auth-page"</span><span class="tag">&gt;</span>
+ 
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"auth-container"</span><span class="tag">&gt;</span>
+ 
+    <span class="cm">&lt;!-- Lado esquerdo: branding/hero (visível em desktop) --&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"auth-brand"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"index.html"</span> <span class="attr">class</span>=<span class="str">"logo"</span><span class="tag">&gt;</span>GENNUS<span class="tag">&lt;/a&gt;</span>
+      <span class="tag">&lt;h2&gt;</span>Bem-vindo de volta<span class="tag">&lt;/h2&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Acesse seu painel e continue de onde parou.<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+ 
+    <span class="cm">&lt;!-- Lado direito: formulário de login --&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"auth-form-panel"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"form-card"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;h1&gt;</span>Entrar<span class="tag">&lt;/h1&gt;</span>
+ 
+        <span class="cm">&lt;!-- novalidate: desabilita validação nativa, usamos a nossa via JS --&gt;</span>
+        <span class="tag">&lt;form</span> <span class="attr">id</span>=<span class="str">"login-form"</span> <span class="attr">novalidate</span><span class="tag">&gt;</span>
+ 
+          <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"form-group"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="str">"email"</span><span class="tag">&gt;</span>E-mail<span class="tag">&lt;/label&gt;</span>
+            <span class="tag">&lt;input</span>
+              <span class="attr">type</span>=<span class="str">"email"</span>
+              <span class="attr">id</span>=<span class="str">"email"</span>
+              <span class="attr">name</span>=<span class="str">"email"</span>
+              <span class="attr">placeholder</span>=<span class="str">"seu@email.com"</span>
+              <span class="attr">autocomplete</span>=<span class="str">"email"</span>
+              <span class="attr">required</span>
+            <span class="tag">&gt;</span>
+            <span class="cm">&lt;!-- Mensagem de erro para este campo (controlada por JS) --&gt;</span>
+            <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="str">"field-error"</span> <span class="attr">id</span>=<span class="str">"email-error"</span><span class="tag">&gt;&lt;/span&gt;</span>
+          <span class="tag">&lt;/div&gt;</span>
+ 
+          <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"form-group"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="str">"senha"</span><span class="tag">&gt;</span>Senha<span class="tag">&lt;/label&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"input-wrapper"</span><span class="tag">&gt;</span>
+              <span class="tag">&lt;input</span>
+                <span class="attr">type</span>=<span class="str">"password"</span>
+                <span class="attr">id</span>=<span class="str">"senha"</span>
+                <span class="attr">name</span>=<span class="str">"senha"</span>
+                <span class="attr">placeholder</span>=<span class="str">"••••••••"</span>
+                <span class="attr">autocomplete</span>=<span class="str">"current-password"</span>
+                <span class="attr">required</span>
+              <span class="tag">&gt;</span>
+              <span class="cm">&lt;!-- Ícone de olho para mostrar/ocultar senha (controlado por JS) --&gt;</span>
+              <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="str">"button"</span> <span class="attr">class</span>=<span class="str">"toggle-password"</span> <span class="attr">aria-label</span>=<span class="str">"Mostrar senha"</span><span class="tag">&gt;</span>
+                👁
+              <span class="tag">&lt;/button&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+            <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="str">"field-error"</span> <span class="attr">id</span>=<span class="str">"senha-error"</span><span class="tag">&gt;&lt;/span&gt;</span>
+          <span class="tag">&lt;/div&gt;</span>
+ 
+          <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"form-actions"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"#"</span> <span class="attr">class</span>=<span class="str">"link-subtle"</span><span class="tag">&gt;</span>Esqueci minha senha<span class="tag">&lt;/a&gt;</span>
+            <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="str">"submit"</span> <span class="attr">class</span>=<span class="str">"btn btn-primary btn-full"</span><span class="tag">&gt;</span>
+              Entrar
+            <span class="tag">&lt;/button&gt;</span>
+          <span class="tag">&lt;/div&gt;</span>
+ 
+        <span class="tag">&lt;/form&gt;</span>
+ 
+        <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="str">"auth-redirect"</span><span class="tag">&gt;</span>
+          Não tem conta? <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"cadastro.html"</span><span class="tag">&gt;</span>Criar conta grátis<span class="tag">&lt;/a&gt;</span>
+        <span class="tag">&lt;/p&gt;</span>
+ 
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+ 
+  <span class="tag">&lt;/div&gt;</span>
+ 
+  <span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="str">"login.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+<span class="tag">&lt;/body&gt;</span></code></pre>
+</div>
+ 
+<div class="tip">Prefira IDs únicos (<code>id=""</code>) para campos de formulário — o <code>label for=""</code> precisa deles. Use classes (<code>class=""</code>) para estilização com CSS que se repete em vários elementos.</div>
+ 
+<!-- ==================== CAPÍTULO 2 — CSS ==================== -->
+<div class="chapter-header page-break">
+  <span class="chapter-num">Capítulo 02</span>
+  <h1>CSS: O Estilo e a Alma Visual</h1>
+  <p>CSS transforma o esqueleto HTML em uma interface que as pessoas querem usar. É onde cores, espaços, tipografia e animações se tornam experiência.</p>
+  <span class="chapter-icon">🎨</span>
+</div>
+ 
+<div class="analogy">
+  <div class="analogy-label">🧠 Analogia Feynman</div>
+  <p>Se HTML é a estrutura da casa, CSS é o design de interiores: cor das paredes, tipo de piso, iluminação, onde cada móvel fica. A mesma planta (HTML) pode virar um apartamento minimalista ou um quarto de hotel cinco estrelas — tudo depende do CSS.</p>
+</div>
+ 
+<h2 class="section">Reset e Base — O Ponto de Partida</h2>
+<p>Todo navegador tem estilos padrão embutidos — margens, paddings, fontes. O primeiro passo de qualquer projeto é <strong>limpar esses defaults</strong> e definir sua própria base:</p>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS · base.css</span>
+  </div>
+<pre><code><span class="cm">/* ===== RESET UNIVERSAL ===== */</span>
+<span class="sel">*</span>,
+<span class="sel">*::before</span>,
+<span class="sel">*::after</span> {
+  <span class="prop">margin</span>: <span class="num">0</span>;
+  <span class="prop">padding</span>: <span class="num">0</span>;
+  <span class="prop">box-sizing</span>: border-box;   <span class="cm">/* padding/border contam DENTRO da largura */</span>
+}
+ 
+<span class="cm">/* ===== VARIÁVEIS GLOBAIS (Custom Properties) ===== */</span>
+<span class="sel">:root</span> {
+  <span class="cm">/* Cores */</span>
+  <span class="var2">--color-bg</span>: <span class="num">#0d0d1a</span>;
+  <span class="var2">--color-surface</span>: <span class="num">#1e1e3f</span>;
+  <span class="var2">--color-border</span>: <span class="num">#2a2a5a</span>;
+  <span class="var2">--color-accent</span>: <span class="num">#6c63ff</span>;
+  <span class="var2">--color-text</span>: <span class="num">#e2e8f0</span>;
+  <span class="var2">--color-text-muted</span>: <span class="num">#94a3b8</span>;
+ 
+  <span class="cm">/* Tipografia */</span>
+  <span class="var2">--font-sans</span>: <span class="str">'Inter'</span>, system-ui, sans-serif;
+  <span class="var2">--font-mono</span>: <span class="str">'JetBrains Mono'</span>, monospace;
+ 
+  <span class="cm">/* Espaçamentos base */</span>
+  <span class="var2">--space-xs</span>: <span class="num">4px</span>;
+  <span class="var2">--space-sm</span>: <span class="num">8px</span>;
+  <span class="var2">--space-md</span>: <span class="num">16px</span>;
+  <span class="var2">--space-lg</span>: <span class="num">32px</span>;
+  <span class="var2">--space-xl</span>: <span class="num">64px</span>;
+ 
+  <span class="cm">/* Bordas */</span>
+  <span class="var2">--radius</span>: <span class="num">12px</span>;
+  <span class="var2">--radius-sm</span>: <span class="num">8px</span>;
+  <span class="var2">--radius-full</span>: <span class="num">9999px</span>;
+ 
+  <span class="cm">/* Transições */</span>
+  <span class="var2">--transition</span>: all <span class="num">0.25s</span> ease;
+}
+ 
+<span class="cm">/* ===== BASE GLOBAL ===== */</span>
+<span class="sel">html</span> {
+  <span class="prop">scroll-behavior</span>: smooth;   <span class="cm">/* scroll suave ao clicar em âncoras */</span>
+  <span class="prop">font-size</span>: <span class="num">16px</span>;            <span class="cm">/* base para cálculos rem */</span>
+}
+ 
+<span class="sel">body</span> {
+  <span class="prop">font-family</span>: <span class="kw">var</span>(<span class="var2">--font-sans</span>);
+  <span class="prop">background-color</span>: <span class="kw">var</span>(<span class="var2">--color-bg</span>);
+  <span class="prop">color</span>: <span class="kw">var</span>(<span class="var2">--color-text</span>);
+  <span class="prop">line-height</span>: <span class="num">1.6</span>;
+  <span class="prop">-webkit-font-smoothing</span>: antialiased; <span class="cm">/* textos mais suaves no Mac */</span>
+}
+ 
+<span class="sel">img</span> {
+  <span class="prop">max-width</span>: <span class="num">100%</span>;   <span class="cm">/* imagens nunca ultrapassam o container */</span>
+  <span class="prop">display</span>: block;
+}
+ 
+<span class="cm">/* ===== CONTAINER PADRÃO ===== */</span>
+<span class="sel">.container</span> {
+  <span class="prop">width</span>: <span class="num">100%</span>;
+  <span class="prop">max-width</span>: <span class="num">1200px</span>;
+  <span class="prop">margin</span>: <span class="num">0</span> auto;
+  <span class="prop">padding</span>: <span class="num">0 24px</span>;
+}</code></pre>
+</div>
+ 
+<h2 class="section">Layout: Flexbox e Grid</h2>
+<p>Esses dois são a espinha dorsal do layout moderno. Escolha entre eles dependendo do problema:</p>
+ 
+<table>
+  <thead><tr><th>Quando usar</th><th>Flexbox</th><th>Grid</th></tr></thead>
+  <tbody>
+    <tr><td>Direção</td><td>Uma dimensão (row ou column)</td><td>Duas dimensões (linhas + colunas)</td></tr>
+    <tr><td>Exemplo ideal</td><td>Nav bar, botões em linha, card interno</td><td>Grade de cards, layout de página, dashboard</td></tr>
+    <tr><td>Analogia</td><td>Fila de pessoas no supermercado</td><td>Planilha Excel — células em grade</td></tr>
+  </tbody>
+</table>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS · layout.css</span>
+  </div>
+<pre><code><span class="cm">/* ===== FLEXBOX — Nav Bar ===== */</span>
+<span class="sel">.site-header .container</span> {
+  <span class="prop">display</span>: flex;
+  <span class="prop">align-items</span>: center;      <span class="cm">/* alinha verticalmente ao centro */</span>
+  <span class="prop">justify-content</span>: space-between; <span class="cm">/* logo à esq, nav à dir */</span>
+  <span class="prop">gap</span>: <span class="num">24px</span>;                <span class="cm">/* espaço entre os filhos diretos */</span>
+  <span class="prop">padding</span>: <span class="num">20px 24px</span>;
+}
+ 
+<span class="sel">.main-nav</span> {
+  <span class="prop">display</span>: flex;
+  <span class="prop">align-items</span>: center;
+  <span class="prop">gap</span>: <span class="num">32px</span>;
+}
+ 
+<span class="cm">/* ===== GRID — Grade de Feature Cards ===== */</span>
+<span class="sel">.features-grid</span> {
+  <span class="prop">display</span>: grid;
+  <span class="cm">/* auto-fill: cria quantas colunas couberem,
+     minmax(280px, 1fr): cada coluna tem mín 280px e cresce igualmente */</span>
+  <span class="prop">grid-template-columns</span>: repeat(auto-fill, minmax(<span class="num">280px</span>, <span class="num">1fr</span>));
+  <span class="prop">gap</span>: <span class="num">24px</span>;
+}
+ 
+<span class="cm">/* ===== POSITION — Header fixo no topo ===== */</span>
+<span class="sel">.site-header</span> {
+  <span class="prop">position</span>: fixed;   <span class="cm">/* fica no lugar ao rolar a página */</span>
+  <span class="prop">top</span>: <span class="num">0</span>;
+  <span class="prop">left</span>: <span class="num">0</span>;
+  <span class="prop">right</span>: <span class="num">0</span>;
+  <span class="prop">z-index</span>: <span class="num">100</span>;       <span class="cm">/* fica na frente de outros elementos */</span>
+  <span class="prop">backdrop-filter</span>: blur(<span class="num">20px</span>); <span class="cm">/* efeito vidro fosco */</span>
+}
+ 
+<span class="cm">/* ===== CENTRAR NA TELA (login page) ===== */</span>
+<span class="sel">.auth-page</span> {
+  <span class="prop">min-height</span>: <span class="num">100vh</span>;       <span class="cm">/* 100% da altura da viewport */</span>
+  <span class="prop">display</span>: flex;
+  <span class="prop">align-items</span>: center;
+  <span class="prop">justify-content</span>: center;
+}</code></pre>
+</div>
+ 
+<h2 class="section">Tipografia — Hierarquia Visual com Texto</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS · typography.css</span>
+  </div>
+<pre><code><span class="sel">h1, h2, h3, h4</span> {
+  <span class="prop">font-weight</span>: <span class="num">700</span>;
+  <span class="prop">line-height</span>: <span class="num">1.2</span>;      <span class="cm">/* títulos grandes ficam mais densos */</span>
+  <span class="prop">color</span>: #fff;
+}
+ 
+<span class="sel">h1</span> { <span class="prop">font-size</span>: clamp(<span class="num">2rem</span>, <span class="num">5vw</span>, <span class="num">3.5rem</span>); } <span class="cm">/* responsivo automático */</span>
+<span class="sel">h2</span> { <span class="prop">font-size</span>: <span class="num">2rem</span>; }
+<span class="sel">h3</span> { <span class="prop">font-size</span>: <span class="num">1.25rem</span>; }
+ 
+<span class="sel">p</span> {
+  <span class="prop">font-size</span>: <span class="num">1rem</span>;        <span class="cm">/* 1rem = 16px (base do html) */</span>
+  <span class="prop">line-height</span>: <span class="num">1.7</span>;      <span class="cm">/* leitura confortável */</span>
+  <span class="prop">color</span>: <span class="kw">var</span>(<span class="var2">--color-text-muted</span>);
+}
+ 
+<span class="cm">/* Gradiente de texto — técnica fintech moderna */</span>
+<span class="sel">.gradient-text</span> {
+  <span class="prop">background</span>: linear-gradient(<span class="num">135deg</span>, #fff <span class="num">40%</span>, <span class="kw">var</span>(<span class="var2">--color-accent</span>) <span class="num">100%</span>);
+  <span class="prop">-webkit-background-clip</span>: text;
+  <span class="prop">-webkit-text-fill-color</span>: transparent;
+  <span class="prop">background-clip</span>: text;
+}
+ 
+<span class="cm">/* Texto de destaque pequeno (badges, labels) */</span>
+<span class="sel">.label-badge</span> {
+  <span class="prop">font-size</span>: <span class="num">0.7rem</span>;
+  <span class="prop">font-weight</span>: <span class="num">700</span>;
+  <span class="prop">letter-spacing</span>: <span class="num">2px</span>;
+  <span class="prop">text-transform</span>: uppercase;
+}</code></pre>
+</div>
+ 
+<h2 class="section">Cores, Gradientes e Glassmorphism</h2>
+<p>O <strong>glassmorphism</strong> é a assinatura visual do fintech dark moderno: fundo semitransparente com blur, bordas sutis, sensação de profundidade em camadas.</p>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS · effects.css</span>
+  </div>
+<pre><code><span class="cm">/* ===== GLASSMORPHISM — Card de Login ===== */</span>
+<span class="sel">.form-card</span> {
+  <span class="prop">background</span>: rgba(<span class="num">255, 255, 255, 0.04</span>);  <span class="cm">/* branco quase invisível */</span>
+  <span class="prop">backdrop-filter</span>: blur(<span class="num">20px</span>);            <span class="cm">/* desfoca o que está atrás */</span>
+  <span class="prop">-webkit-backdrop-filter</span>: blur(<span class="num">20px</span>);
+  <span class="prop">border</span>: <span class="num">1px</span> solid rgba(<span class="num">255, 255, 255, 0.08</span>);
+  <span class="prop">border-radius</span>: <span class="num">20px</span>;
+  <span class="prop">padding</span>: <span class="num">48px</span>;
+  <span class="prop">box-shadow</span>: <span class="num">0 25px 50px</span> rgba(<span class="num">0, 0, 0, 0.5</span>),
+               inset <span class="num">0 1px 0</span> rgba(<span class="num">255, 255, 255, 0.06</span>);
+}
+ 
+<span class="cm">/* ===== GRADIENTE DE FUNDO ===== */</span>
+<span class="sel">.auth-page</span> {
+  <span class="prop">background</span>: <span class="kw">var</span>(<span class="var2">--color-bg</span>);
+  <span class="prop">background-image</span>:
+    radial-gradient(ellipse at <span class="num">30% 20%</span>, rgba(<span class="num">108, 99, 255, 0.15</span>) <span class="num">0%</span>, transparent <span class="num">60%</span>),
+    radial-gradient(ellipse at <span class="num">80% 80%</span>, rgba(<span class="num">56, 189, 248, 0.10</span>) <span class="num">0%</span>, transparent <span class="num">55%</span>);
+}
+ 
+<span class="cm">/* ===== SOMBRA COM COR (Glow Effect) ===== */</span>
+<span class="sel">.btn-primary</span> {
+  <span class="prop">box-shadow</span>: <span class="num">0 4px 20px</span> rgba(<span class="num">108, 99, 255, 0.4</span>);  <span class="cm">/* brilho roxo */</span>
+}
+ 
+<span class="sel">.btn-primary:hover</span> {
+  <span class="prop">box-shadow</span>: <span class="num">0 8px 32px</span> rgba(<span class="num">108, 99, 255, 0.6</span>);  <span class="cm">/* glow mais forte no hover */</span>
+}
+ 
+<span class="cm">/* ===== INPUT ESTILO DARK ===== */</span>
+<span class="sel">.form-group input</span> {
+  <span class="prop">width</span>: <span class="num">100%</span>;
+  <span class="prop">background</span>: rgba(<span class="num">255, 255, 255, 0.05</span>);
+  <span class="prop">border</span>: <span class="num">1px</span> solid rgba(<span class="num">255, 255, 255, 0.1</span>);
+  <span class="prop">border-radius</span>: <span class="kw">var</span>(<span class="var2">--radius-sm</span>);
+  <span class="prop">padding</span>: <span class="num">14px 16px</span>;
+  <span class="prop">color</span>: <span class="kw">var</span>(<span class="var2">--color-text</span>);
+  <span class="prop">font-size</span>: <span class="num">15px</span>;
+  <span class="prop">outline</span>: none;
+  <span class="prop">transition</span>: <span class="kw">var</span>(<span class="var2">--transition</span>);
+}
+ 
+<span class="sel">.form-group input:focus</span> {
+  <span class="prop">border-color</span>: <span class="kw">var</span>(<span class="var2">--color-accent</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 0 0 3px</span> rgba(<span class="num">108, 99, 255, 0.2</span>); <span class="cm">/* ring de foco */</span>
+}
+ 
+<span class="sel">.form-group input.error</span> {
+  <span class="prop">border-color</span>: <span class="num">#f87171</span>;
+  <span class="prop">box-shadow</span>: <span class="num">0 0 0 3px</span> rgba(<span class="num">248, 113, 113, 0.15</span>);
+}</code></pre>
+</div>
+ 
+<h2 class="section">Botões — Componente Completo</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS · buttons.css</span>
+  </div>
+<pre><code><span class="cm">/* ===== BASE DOS BOTÕES ===== */</span>
+<span class="sel">.btn</span> {
+  <span class="prop">display</span>: inline-flex;
+  <span class="prop">align-items</span>: center;
+  <span class="prop">justify-content</span>: center;
+  <span class="prop">gap</span>: <span class="num">8px</span>;
+  <span class="prop">padding</span>: <span class="num">12px 28px</span>;
+  <span class="prop">border-radius</span>: <span class="kw">var</span>(<span class="var2">--radius-full</span>);  <span class="cm">/* pill shape */</span>
+  <span class="prop">font-family</span>: <span class="kw">var</span>(<span class="var2">--font-sans</span>);
+  <span class="prop">font-size</span>: <span class="num">14px</span>;
+  <span class="prop">font-weight</span>: <span class="num">600</span>;
+  <span class="prop">cursor</span>: pointer;
+  <span class="prop">border</span>: none;
+  <span class="prop">transition</span>: <span class="kw">var</span>(<span class="var2">--transition</span>);
+  <span class="prop">text-decoration</span>: none;
+  <span class="prop">white-space</span>: nowrap;
+}
+ 
+<span class="cm">/* Botão primário — ação principal */</span>
+<span class="sel">.btn-primary</span> {
+  <span class="prop">background</span>: linear-gradient(<span class="num">135deg</span>, #<span class="num">6c63ff</span>, #<span class="num">8b5cf6</span>);
+  <span class="prop">color</span>: #fff;
+  <span class="prop">box-shadow</span>: <span class="num">0 4px 20px</span> rgba(<span class="num">108, 99, 255, 0.4</span>);
+}
+<span class="sel">.btn-primary:hover</span> {
+  <span class="prop">transform</span>: translateY(<span class="num">-2px</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 8px 32px</span> rgba(<span class="num">108, 99, 255, 0.55</span>);
+}
+<span class="sel">.btn-primary:active</span> { <span class="prop">transform</span>: translateY(<span class="num">0</span>); }
+ 
+<span class="cm">/* Botão outline — ação secundária */</span>
+<span class="sel">.btn-outline</span> {
+  <span class="prop">background</span>: transparent;
+  <span class="prop">color</span>: <span class="kw">var</span>(<span class="var2">--color-text</span>);
+  <span class="prop">border</span>: <span class="num">1px</span> solid <span class="kw">var</span>(<span class="var2">--color-border</span>);
+}
+<span class="sel">.btn-outline:hover</span> {
+  <span class="prop">border-color</span>: <span class="kw">var</span>(<span class="var2">--color-accent</span>);
+  <span class="prop">color</span>: <span class="kw">var</span>(<span class="var2">--color-accent</span>);
+}
+ 
+<span class="cm">/* Modificadores de tamanho */</span>
+<span class="sel">.btn-lg</span>  { <span class="prop">padding</span>: <span class="num">16px 40px</span>; <span class="prop">font-size</span>: <span class="num">16px</span>; }
+<span class="sel">.btn-sm</span>  { <span class="prop">padding</span>: <span class="num">8px 18px</span>;  <span class="prop">font-size</span>: <span class="num">13px</span>; }
+<span class="sel">.btn-full</span>{ <span class="prop">width</span>: <span class="num">100%</span>; }
+ 
+<span class="cm">/* Estado de carregamento */</span>
+<span class="sel">.btn.loading</span> {
+  <span class="prop">pointer-events</span>: none;
+  <span class="prop">opacity</span>: <span class="num">0.7</span>;
+}</code></pre>
+</div>
+ 
+<h2 class="section">Transições e Animações</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS · animations.css</span>
+  </div>
+<pre><code><span class="cm">/* ===== TRANSITION — para estados hover/focus ===== */</span>
+<span class="cm">/* Sintaxe: propriedade duração timing-function delay */</span>
+<span class="sel">.card</span> {
+  <span class="prop">transition</span>: transform <span class="num">0.25s</span> ease, box-shadow <span class="num">0.25s</span> ease;
+}
+<span class="sel">.card:hover</span> {
+  <span class="prop">transform</span>: translateY(<span class="num">-6px</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 20px 40px</span> rgba(<span class="num">0,0,0,0.4</span>);
+}
+ 
+<span class="cm">/* ===== @KEYFRAMES — animação de entrada ===== */</span>
+<span class="kw">@keyframes</span> fadeInUp {
+  <span class="kw">from</span> {
+    <span class="prop">opacity</span>: <span class="num">0</span>;
+    <span class="prop">transform</span>: translateY(<span class="num">30px</span>);
+  }
+  <span class="kw">to</span> {
+    <span class="prop">opacity</span>: <span class="num">1</span>;
+    <span class="prop">transform</span>: translateY(<span class="num">0</span>);
+  }
+}
+ 
+<span class="sel">.hero-content</span> {
+  <span class="prop">animation</span>: fadeInUp <span class="num">0.6s</span> ease <span class="num">0.1s</span> both;
+  <span class="cm">/* nome duração timing delay fill-mode */</span>
+  <span class="cm">/* "both": aplica o estado inicial antes e mantém o final depois */</span>
+}
+ 
+<span class="cm">/* Animação de pulsação (ex: badge "Novo") */</span>
+<span class="kw">@keyframes</span> pulse {
+  <span class="num">0%</span>, <span class="num">100%</span> { <span class="prop">box-shadow</span>: <span class="num">0 0 0 0</span> rgba(<span class="num">108, 99, 255, 0.5</span>); }
+  <span class="num">50%</span>        { <span class="prop">box-shadow</span>: <span class="num">0 0 0 8px</span> rgba(<span class="num">108, 99, 255, 0</span>); }
+}
+ 
+<span class="sel">.badge-live</span> {
+  <span class="prop">animation</span>: pulse <span class="num">2s</span> infinite;
+}
+ 
+<span class="cm">/* Animação de loading spinner */</span>
+<span class="kw">@keyframes</span> spin {
+  <span class="kw">to</span> { <span class="prop">transform</span>: rotate(<span class="num">360deg</span>); }
+}
+ 
+<span class="sel">.spinner</span> {
+  <span class="prop">width</span>: <span class="num">20px</span>; <span class="prop">height</span>: <span class="num">20px</span>;
+  <span class="prop">border</span>: <span class="num">2px</span> solid rgba(<span class="num">255,255,255,0.3</span>);
+  <span class="prop">border-top-color</span>: #fff;
+  <span class="prop">border-radius</span>: <span class="num">50%</span>;
+  <span class="prop">animation</span>: spin <span class="num">0.7s</span> linear infinite;
+}
+ 
+<span class="cm">/* Hambúrguer → X (menu mobile) */</span>
+<span class="sel">.menu-toggle span</span> {
+  <span class="prop">display</span>: block;
+  <span class="prop">width</span>: <span class="num">24px</span>; <span class="prop">height</span>: <span class="num">2px</span>;
+  <span class="prop">background</span>: <span class="kw">var</span>(<span class="var2">--color-text</span>);
+  <span class="prop">transition</span>: <span class="kw">var</span>(<span class="var2">--transition</span>);
+  <span class="prop">transform-origin</span>: center;
+}
+<span class="sel">.menu-toggle.open span:nth-child(1)</span> { <span class="prop">transform</span>: rotate(<span class="num">45deg</span>) translate(<span class="num">5px, 5px</span>); }
+<span class="sel">.menu-toggle.open span:nth-child(2)</span> { <span class="prop">opacity</span>: <span class="num">0</span>; }
+<span class="sel">.menu-toggle.open span:nth-child(3)</span> { <span class="prop">transform</span>: rotate(<span class="num">-45deg</span>) translate(<span class="num">5px, -5px</span>); }</code></pre>
+</div>
+ 
+<h2 class="section">Responsividade — Media Queries</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS · responsive.css</span>
+  </div>
+<pre><code><span class="cm">/* ===== BREAKPOINTS PADRÃO ===== */</span>
+<span class="cm">/* Mobile primeiro (mobile-first): estilos base = mobile,
+   media queries adicionam comportamento em telas maiores */</span>
+ 
+<span class="cm">/* Tablet: 768px+ */</span>
+<span class="kw">@media</span> (min-width: <span class="num">768px</span>) {
+  <span class="sel">.features-grid</span> {
+    <span class="prop">grid-template-columns</span>: repeat(<span class="num">2</span>, <span class="num">1fr</span>);
+  }
+  <span class="sel">.menu-toggle</span> { <span class="prop">display</span>: none; }
+  <span class="sel">.main-nav</span>    { <span class="prop">display</span>: flex; }
+}
+ 
+<span class="cm">/* Desktop: 1024px+ */</span>
+<span class="kw">@media</span> (min-width: <span class="num">1024px</span>) {
+  <span class="sel">.features-grid</span> {
+    <span class="prop">grid-template-columns</span>: repeat(<span class="num">3</span>, <span class="num">1fr</span>);
+  }
+  <span class="sel">.auth-container</span> {
+    <span class="prop">display</span>: grid;
+    <span class="prop">grid-template-columns</span>: <span class="num">1fr 1fr</span>;
+  }
+}
+ 
+<span class="cm">/* Mobile (base, sem media query necessária): */</span>
+<span class="sel">.main-nav</span> { <span class="prop">display</span>: none; } <span class="cm">/* oculto no mobile */</span>
+<span class="sel">.menu-toggle</span> { <span class="prop">display</span>: flex; } <span class="cm">/* hambúrguer aparece no mobile */</span>
+ 
+<span class="cm">/* ===== UNIDADES: REM vs PX ===== */</span>
+<span class="cm">/*
+  px  → absoluto, não escala com preferências do usuário
+  rem → relativo ao html (16px base), escala bem, acessível
+  em  → relativo ao elemento pai, útil para componentes isolados
+  %   → relativo ao container pai
+  vw/vh → relativo à viewport (janela)
+ 
+  Regra prática:
+  - font-size → use rem
+  - padding/margin → use rem ou px
+  - larguras de layout → use %, fr, ou px com max-width
+  - alturas de seções → use vh ou px
+*/</span></code></pre>
+</div>
+ 
+<!-- ==================== CAPÍTULO 3 — JS ==================== -->
+<div class="chapter-header page-break">
+  <span class="chapter-num">Capítulo 03</span>
+  <h1>JavaScript: O Comportamento e a Vida da Página</h1>
+  <p>HTML estrutura, CSS estiliza. JavaScript faz acontecer. É a única das três linguagens que realmente programa — tem lógica, memória e reage ao usuário.</p>
+  <span class="chapter-icon">⚡</span>
+</div>
+ 
+<div class="analogy">
+  <div class="analogy-label">🧠 Analogia Feynman</div>
+  <p>Na sua casa: HTML é a estrutura, CSS é o design. O JavaScript são os sistemas elétrico, hidráulico e de automação — tudo que responde quando você aperta um botão, liga uma luz ou abre uma torneira. Sem ele, a casa é bonita mas estática.</p>
+</div>
+ 
+<h2 class="section">Variáveis: let, const e var</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang js">JS · variaveis.js</span>
+  </div>
+<pre><code><span class="cm">// ===== CONST: valor que não muda =====</span>
+<span class="cm">// Use por padrão. Deixa o código mais previsível.</span>
+<span class="kw">const</span> <span class="var2">API_URL</span> = <span class="str">'https://api.gennus.com'</span>;
+<span class="kw">const</span> <span class="var2">btnLogin</span> = document.<span class="fn">querySelector</span>(<span class="str">'#login-form'</span>);
+ 
+<span class="cm">// ===== LET: valor que pode mudar =====</span>
+<span class="cm">// Use quando precisar reatribuir.</span>
+<span class="kw">let</span> <span class="var2">tentativas</span> = <span class="num">0</span>;
+<span class="var2">tentativas</span>++;  <span class="cm">// agora é 1</span>
+ 
+<span class="kw">let</span> <span class="var2">menuAberto</span> = <span class="kw">false</span>;
+<span class="var2">menuAberto</span> = <span class="kw">true</span>;  <span class="cm">// reatribuição válida</span>
+ 
+<span class="cm">// ===== VAR: evite =====</span>
+<span class="cm">// Tem comportamento confuso (escapa de blocos, hoisting).
+// Código moderno usa apenas const e let.</span>
+ 
+<span class="cm">// ===== TIPOS BÁSICOS =====</span>
+<span class="kw">const</span> <span class="var2">nome</span>    = <span class="str">"Carlos"</span>;       <span class="cm">// string</span>
+<span class="kw">const</span> <span class="var2">idade</span>   = <span class="num">28</span>;             <span class="cm">// number</span>
+<span class="kw">const</span> <span class="var2">ativo</span>   = <span class="kw">true</span>;           <span class="cm">// boolean</span>
+<span class="kw">const</span> <span class="var2">usuario</span> = <span class="kw">null</span>;           <span class="cm">// nulo (intencionalmente vazio)</span>
+<span class="kw">const</span> <span class="var2">token</span>   = <span class="kw">undefined</span>;      <span class="cm">// indefinido (ainda não tem valor)</span>
+ 
+<span class="cm">// Template strings: interpolação com backtick</span>
+<span class="kw">const</span> <span class="var2">mensagem</span> = <span class="str">`Bem-vindo, </span><span class="kw">${nome}</span><span class="str">! Você tem </span><span class="kw">${idade}</span><span class="str"> anos.`</span>;</code></pre>
+</div>
+ 
+<h2 class="section">DOM — Selecionando e Manipulando Elementos</h2>
+<p>O <strong>DOM</strong> (Document Object Model) é a representação da página como objetos JavaScript. Você o acessa via o objeto <code>document</code>.</p>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang js">JS · dom.js</span>
+  </div>
+<pre><code><span class="cm">// ===== SELECIONANDO ELEMENTOS =====</span>
+ 
+<span class="cm">// querySelector: retorna o PRIMEIRO elemento que bate com o seletor CSS</span>
+<span class="kw">const</span> <span class="var2">form</span>     = document.<span class="fn">querySelector</span>(<span class="str">'#login-form'</span>);
+<span class="kw">const</span> <span class="var2">emailInput</span> = document.<span class="fn">querySelector</span>(<span class="str">'input[type="email"]'</span>);
+<span class="kw">const</span> <span class="var2">btn</span>      = document.<span class="fn">querySelector</span>(<span class="str">'.btn-primary'</span>);
+ 
+<span class="cm">// querySelectorAll: retorna TODOS (NodeList, parecido com array)</span>
+<span class="kw">const</span> <span class="var2">inputs</span> = document.<span class="fn">querySelectorAll</span>(<span class="str">'input'</span>);
+<span class="var2">inputs</span>.<span class="fn">forEach</span>(<span class="var2">input</span> => {
+  console.<span class="fn">log</span>(<span class="var2">input</span>.value); <span class="cm">// percorre todos os inputs</span>
+});
+ 
+<span class="cm">// ===== LENDO E MUDANDO CONTEÚDO =====</span>
+<span class="kw">const</span> <span class="var2">titulo</span> = document.<span class="fn">querySelector</span>(<span class="str">'h1'</span>);
+ 
+titulo.textContent = <span class="str">'Novo título'</span>;     <span class="cm">// muda texto (seguro)</span>
+titulo.innerHTML   = <span class="str">'&lt;em&gt;Novo&lt;/em&gt;'</span>;  <span class="cm">// muda HTML interno (cuidado com XSS)</span>
+ 
+<span class="cm">// ===== MANIPULANDO ATRIBUTOS =====</span>
+<span class="kw">const</span> <span class="var2">senhaInput</span> = document.<span class="fn">querySelector</span>(<span class="str">'#senha'</span>);
+senhaInput.<span class="fn">setAttribute</span>(<span class="str">'type'</span>, <span class="str">'text'</span>);    <span class="cm">// mostra senha</span>
+senhaInput.<span class="fn">getAttribute</span>(<span class="str">'placeholder'</span>);    <span class="cm">// lê atributo</span>
+senhaInput.<span class="fn">removeAttribute</span>(<span class="str">'required'</span>);    <span class="cm">// remove atributo</span>
+ 
+<span class="cm">// ===== MANIPULANDO CLASSES =====</span>
+<span class="kw">const</span> <span class="var2">card</span> = document.<span class="fn">querySelector</span>(<span class="str">'.feature-card'</span>);
+ 
+card.classList.<span class="fn">add</span>(<span class="str">'active'</span>);       <span class="cm">// adiciona classe</span>
+card.classList.<span class="fn">remove</span>(<span class="str">'active'</span>);    <span class="cm">// remove classe</span>
+card.classList.<span class="fn">toggle</span>(<span class="str">'active'</span>);    <span class="cm">// alterna (add se não tem, remove se tem)</span>
+card.classList.<span class="fn">contains</span>(<span class="str">'active'</span>); <span class="cm">// retorna true/false</span>
+ 
+<span class="cm">// ===== MANIPULANDO ESTILOS INLINE =====</span>
+<span class="cm">// Use com moderação — prefira manipular classes</span>
+card.style.opacity = <span class="str">'0.5'</span>;
+card.style.transform = <span class="str">'translateY(-10px)'</span>;</code></pre>
+</div>
+ 
+<h2 class="section">Eventos — Reagindo ao Usuário</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang js">JS · eventos.js</span>
+  </div>
+<pre><code><span class="cm">// ===== addEventListener: a forma correta de escutar eventos =====</span>
+<span class="cm">// Sintaxe: elemento.addEventListener('evento', função)</span>
+ 
+<span class="kw">const</span> <span class="var2">btn</span> = document.<span class="fn">querySelector</span>(<span class="str">'.btn-primary'</span>);
+ 
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>(<span class="var2">event</span>) {
+  <span class="cm">// 'event' é o objeto com info sobre o clique</span>
+  console.<span class="fn">log</span>(<span class="str">'Clicado!'</span>, <span class="var2">event</span>.target); <span class="cm">// .target = elemento clicado</span>
+});
+ 
+<span class="cm">// Com arrow function (mais limpo, mais comum)</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (<span class="var2">e</span>) => {
+  e.<span class="fn">preventDefault</span>(); <span class="cm">// impede comportamento padrão (ex: envio de form)</span>
+  console.<span class="fn">log</span>(<span class="str">'Botão clicado'</span>);
+});
+ 
+<span class="cm">// ===== EVENTOS DE FORMULÁRIO =====</span>
+<span class="kw">const</span> <span class="var2">form</span> = document.<span class="fn">querySelector</span>(<span class="str">'#login-form'</span>);
+ 
+form.<span class="fn">addEventListener</span>(<span class="str">'submit'</span>, (<span class="var2">e</span>) => {
+  e.<span class="fn">preventDefault</span>(); <span class="cm">// sem isso, a página recarrega!</span>
+  <span class="fn">validarForm</span>();
+});
+ 
+<span class="cm">// ===== EVENTOS DE INPUT =====</span>
+<span class="kw">const</span> <span class="var2">emailInput</span> = document.<span class="fn">querySelector</span>(<span class="str">'#email'</span>);
+ 
+emailInput.<span class="fn">addEventListener</span>(<span class="str">'input'</span>, (<span class="var2">e</span>) => {
+  <span class="cm">// dispara a cada tecla pressionada</span>
+  console.<span class="fn">log</span>(<span class="str">'Valor atual:'</span>, e.target.value);
+});
+ 
+emailInput.<span class="fn">addEventListener</span>(<span class="str">'focus'</span>, () => {
+  <span class="cm">// campo ganhou foco (usuário clicou nele)</span>
+  emailInput.parentElement.classList.<span class="fn">add</span>(<span class="str">'focused'</span>);
+});
+ 
+emailInput.<span class="fn">addEventListener</span>(<span class="str">'blur'</span>, () => {
+  <span class="cm">// campo perdeu foco (usuário foi para outro elemento)</span>
+  emailInput.parentElement.classList.<span class="fn">remove</span>(<span class="str">'focused'</span>);
+  <span class="fn">validarEmail</span>(<span class="var2">emailInput</span>); <span class="cm">// valida ao sair do campo</span>
+});</code></pre>
+</div>
+ 
+<h2 class="section">Funções — Declaração e Arrow Functions</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang js">JS · funcoes.js</span>
+  </div>
+<pre><code><span class="cm">// ===== DECLARAÇÃO TRADICIONAL =====</span>
+<span class="cm">// Pode ser chamada antes de ser definida (hoisting)</span>
+<span class="kw">function</span> <span class="fn">saudar</span>(<span class="var2">nome</span>) {
+  <span class="kw">return</span> <span class="str">`Olá, </span><span class="kw">${nome}</span><span class="str">!`</span>;
+}
+ 
+<span class="cm">// ===== ARROW FUNCTION =====</span>
+<span class="cm">// Mais concisa, mais comum no JS moderno</span>
+<span class="kw">const</span> <span class="fn">saudar</span> = (<span class="var2">nome</span>) => <span class="str">`Olá, </span><span class="kw">${nome}</span><span class="str">!`</span>;
+ 
+<span class="cm">// Com múltiplas linhas, use chaves e return explícito</span>
+<span class="kw">const</span> <span class="fn">calcularDesconto</span> = (<span class="var2">valor</span>, <span class="var2">pct</span>) => {
+  <span class="kw">const</span> <span class="var2">desconto</span> = <span class="var2">valor</span> * (<span class="var2">pct</span> / <span class="num">100</span>);
+  <span class="kw">return</span> <span class="var2">valor</span> - <span class="var2">desconto</span>;
+};
+ 
+<span class="cm">// ===== CONDICIONAIS =====</span>
+<span class="kw">const</span> <span class="fn">verificarEmail</span> = (<span class="var2">email</span>) => {
+  <span class="kw">if</span> (<span class="var2">email</span>.length === <span class="num">0</span>) {
+    <span class="kw">return</span> <span class="str">'Campo obrigatório'</span>;
+  } <span class="kw">else if</span> (!<span class="var2">email</span>.<span class="fn">includes</span>(<span class="str">'@'</span>)) {
+    <span class="kw">return</span> <span class="str">'E-mail inválido'</span>;
+  } <span class="kw">else</span> {
+    <span class="kw">return</span> <span class="kw">null</span>; <span class="cm">// null = sem erro</span>
+  }
+};
+ 
+<span class="cm">// Ternário: if/else em uma linha</span>
+<span class="cm">// condição ? valor_se_true : valor_se_false</span>
+<span class="kw">const</span> <span class="var2">tipo</span> = <span class="var2">age</span> >= <span class="num">18</span> ? <span class="str">'adulto'</span> : <span class="str">'menor'</span>;
+<span class="kw">const</span> <span class="var2">classe</span> = <span class="var2">ativo</span> ? <span class="str">'btn-primary'</span> : <span class="str">'btn-disabled'</span>;</code></pre>
+</div>
+ 
+<h2 class="section">Validação de Formulário Completa</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang js">JS · validacao.js — Página de Cadastro</span>
+  </div>
+<pre><code><span class="cm">// ===== VALIDAÇÃO DE FORMULÁRIO DE CADASTRO ===== </span>
+ 
+<span class="cm">// Selecionamos todos os campos que vamos usar</span>
+<span class="kw">const</span> <span class="var2">form</span>          = document.<span class="fn">querySelector</span>(<span class="str">'#cadastro-form'</span>);
+<span class="kw">const</span> <span class="var2">nomeInput</span>     = document.<span class="fn">querySelector</span>(<span class="str">'#nome'</span>);
+<span class="kw">const</span> <span class="var2">emailInput</span>    = document.<span class="fn">querySelector</span>(<span class="str">'#email'</span>);
+<span class="kw">const</span> <span class="var2">senhaInput</span>    = document.<span class="fn">querySelector</span>(<span class="str">'#senha'</span>);
+<span class="kw">const</span> <span class="var2">confirmInput</span>  = document.<span class="fn">querySelector</span>(<span class="str">'#confirmar-senha'</span>);
+ 
+<span class="cm">// ─── Funções auxiliares ────────────────────────────────────</span>
+ 
+<span class="cm">// Exibe ou limpa o erro de um campo</span>
+<span class="kw">const</span> <span class="fn">setError</span> = (<span class="var2">input</span>, <span class="var2">mensagem</span>) => {
+  <span class="kw">const</span> <span class="var2">errorEl</span> = document.<span class="fn">querySelector</span>(<span class="str">`#</span><span class="kw">${input.id}</span><span class="str">-error`</span>);
+  <span class="kw">if</span> (<span class="var2">mensagem</span>) {
+    <span class="var2">input</span>.classList.<span class="fn">add</span>(<span class="str">'error'</span>);
+    <span class="var2">input</span>.classList.<span class="fn">remove</span>(<span class="str">'valid'</span>);
+    <span class="kw">if</span> (<span class="var2">errorEl</span>) <span class="var2">errorEl</span>.textContent = <span class="var2">mensagem</span>;
+  } <span class="kw">else</span> {
+    <span class="var2">input</span>.classList.<span class="fn">remove</span>(<span class="str">'error'</span>);
+    <span class="var2">input</span>.classList.<span class="fn">add</span>(<span class="str">'valid'</span>);
+    <span class="kw">if</span> (<span class="var2">errorEl</span>) <span class="var2">errorEl</span>.textContent = <span class="str">''</span>;
+  }
+};
+ 
+<span class="cm">// Valida e-mail com regex</span>
+<span class="kw">const</span> <span class="fn">isEmailValido</span> = (<span class="var2">email</span>) => {
+  <span class="kw">const</span> <span class="var2">regex</span> = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  <span class="kw">return</span> <span class="var2">regex</span>.<span class="fn">test</span>(<span class="var2">email</span>);
+};
+ 
+<span class="cm">// Valida cada campo individualmente</span>
+<span class="kw">const</span> <span class="fn">validarNome</span> = () => {
+  <span class="kw">const</span> <span class="var2">v</span> = <span class="var2">nomeInput</span>.value.<span class="fn">trim</span>();
+  <span class="kw">if</span> (!<span class="var2">v</span>) <span class="kw">return</span> <span class="fn">setError</span>(<span class="var2">nomeInput</span>, <span class="str">'Nome é obrigatório'</span>);
+  <span class="kw">if</span> (<span class="var2">v</span>.length < <span class="num">2</span>) <span class="kw">return</span> <span class="fn">setError</span>(<span class="var2">nomeInput</span>, <span class="str">'Mínimo 2 caracteres'</span>);
+  <span class="fn">setError</span>(<span class="var2">nomeInput</span>, <span class="kw">null</span>); <span class="cm">// limpa o erro</span>
+  <span class="kw">return true</span>;
+};
+ 
+<span class="kw">const</span> <span class="fn">validarEmail</span> = () => {
+  <span class="kw">const</span> <span class="var2">v</span> = <span class="var2">emailInput</span>.value.<span class="fn">trim</span>();
+  <span class="kw">if</span> (!<span class="var2">v</span>) <span class="kw">return</span> <span class="fn">setError</span>(<span class="var2">emailInput</span>, <span class="str">'E-mail é obrigatório'</span>);
+  <span class="kw">if</span> (!<span class="fn">isEmailValido</span>(<span class="var2">v</span>)) <span class="kw">return</span> <span class="fn">setError</span>(<span class="var2">emailInput</span>, <span class="str">'E-mail inválido'</span>);
+  <span class="fn">setError</span>(<span class="var2">emailInput</span>, <span class="kw">null</span>);
+  <span class="kw">return true</span>;
+};
+ 
+<span class="kw">const</span> <span class="fn">validarSenha</span> = () => {
+  <span class="kw">const</span> <span class="var2">v</span> = <span class="var2">senhaInput</span>.value;
+  <span class="kw">if</span> (!<span class="var2">v</span>) <span class="kw">return</span> <span class="fn">setError</span>(<span class="var2">senhaInput</span>, <span class="str">'Senha é obrigatória'</span>);
+  <span class="kw">if</span> (<span class="var2">v</span>.length < <span class="num">8</span>) <span class="kw">return</span> <span class="fn">setError</span>(<span class="var2">senhaInput</span>, <span class="str">'Mínimo 8 caracteres'</span>);
+  <span class="fn">setError</span>(<span class="var2">senhaInput</span>, <span class="kw">null</span>);
+  <span class="kw">return true</span>;
+};
+ 
+<span class="kw">const</span> <span class="fn">validarConfirmacao</span> = () => {
+  <span class="kw">if</span> (<span class="var2">confirmInput</span>.value !== <span class="var2">senhaInput</span>.value) {
+    <span class="kw">return</span> <span class="fn">setError</span>(<span class="var2">confirmInput</span>, <span class="str">'As senhas não coincidem'</span>);
+  }
+  <span class="fn">setError</span>(<span class="var2">confirmInput</span>, <span class="kw">null</span>);
+  <span class="kw">return true</span>;
+};
+ 
+<span class="cm">// ─── Validação ao sair do campo (blur) ────────────────────</span>
+<span class="var2">nomeInput</span>.<span class="fn">addEventListener</span>(<span class="str">'blur'</span>, <span class="fn">validarNome</span>);
+<span class="var2">emailInput</span>.<span class="fn">addEventListener</span>(<span class="str">'blur'</span>, <span class="fn">validarEmail</span>);
+<span class="var2">senhaInput</span>.<span class="fn">addEventListener</span>(<span class="str">'blur'</span>, <span class="fn">validarSenha</span>);
+<span class="var2">confirmInput</span>.<span class="fn">addEventListener</span>(<span class="str">'blur'</span>, <span class="fn">validarConfirmacao</span>);
+ 
+<span class="cm">// ─── Validação final no submit ─────────────────────────────</span>
+<span class="var2">form</span>.<span class="fn">addEventListener</span>(<span class="str">'submit'</span>, (<span class="var2">e</span>) => {
+  e.<span class="fn">preventDefault</span>();
+ 
+  <span class="kw">const</span> <span class="var2">okNome</span>     = <span class="fn">validarNome</span>();
+  <span class="kw">const</span> <span class="var2">okEmail</span>    = <span class="fn">validarEmail</span>();
+  <span class="kw">const</span> <span class="var2">okSenha</span>    = <span class="fn">validarSenha</span>();
+  <span class="kw">const</span> <span class="var2">okConfirm</span>  = <span class="fn">validarConfirmacao</span>();
+ 
+  <span class="kw">if</span> (<span class="var2">okNome</span> && <span class="var2">okEmail</span> && <span class="var2">okSenha</span> && <span class="var2">okConfirm</span>) {
+    console.<span class="fn">log</span>(<span class="str">'✅ Formulário válido! Enviar para a API.'</span>);
+    <span class="cm">// aqui vai a chamada fetch() para a API</span>
+  }
+});</code></pre>
+</div>
+ 
+<h2 class="section">Toggle de Menu e Mostrar/Ocultar Senha</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang js">JS · toggles.js</span>
+  </div>
+<pre><code><span class="cm">// ===== MENU HAMBÚRGUER (mobile) =====</span>
+<span class="kw">const</span> <span class="var2">menuToggle</span> = document.<span class="fn">querySelector</span>(<span class="str">'.menu-toggle'</span>);
+<span class="kw">const</span> <span class="var2">mainNav</span>    = document.<span class="fn">querySelector</span>(<span class="str">'.main-nav'</span>);
+ 
+<span class="var2">menuToggle</span>.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => {
+  <span class="kw">const</span> <span class="var2">isOpen</span> = <span class="var2">mainNav</span>.classList.<span class="fn">contains</span>(<span class="str">'open'</span>);
+ 
+  <span class="var2">mainNav</span>.classList.<span class="fn">toggle</span>(<span class="str">'open'</span>);
+  <span class="var2">menuToggle</span>.classList.<span class="fn">toggle</span>(<span class="str">'open'</span>); <span class="cm">// anima hambúrguer → X (via CSS)</span>
+ 
+  <span class="cm">// Acessibilidade: informa leitores de tela</span>
+  <span class="var2">menuToggle</span>.<span class="fn">setAttribute</span>(<span class="str">'aria-expanded'</span>, !<span class="var2">isOpen</span>);
+});
+ 
+<span class="cm">// Fecha ao clicar em um link do menu</span>
+document.<span class="fn">querySelectorAll</span>(<span class="str">'.main-nav a'</span>).<span class="fn">forEach</span>(<span class="var2">link</span> => {
+  <span class="var2">link</span>.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => {
+    <span class="var2">mainNav</span>.classList.<span class="fn">remove</span>(<span class="str">'open'</span>);
+    <span class="var2">menuToggle</span>.classList.<span class="fn">remove</span>(<span class="str">'open'</span>);
+  });
+});
+ 
+<span class="cm">// ===== MOSTRAR/OCULTAR SENHA =====</span>
+<span class="kw">const</span> <span class="var2">toggleSenha</span> = document.<span class="fn">querySelector</span>(<span class="str">'.toggle-password'</span>);
+<span class="kw">const</span> <span class="var2">senhaInput</span>   = document.<span class="fn">querySelector</span>(<span class="str">'#senha'</span>);
+ 
+<span class="var2">toggleSenha</span>.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => {
+  <span class="kw">const</span> <span class="var2">visivel</span> = <span class="var2">senhaInput</span>.type === <span class="str">'text'</span>;
+ 
+  <span class="var2">senhaInput</span>.type = <span class="var2">visivel</span> ? <span class="str">'password'</span> : <span class="str">'text'</span>;
+  <span class="var2">toggleSenha</span>.textContent = <span class="var2">visivel</span> ? <span class="str">'👁'</span> : <span class="str">'🙈'</span>;
+  <span class="var2">toggleSenha</span>.<span class="fn">setAttribute</span>(<span class="str">'aria-label'</span>, <span class="var2">visivel</span> ? <span class="str">'Mostrar senha'</span> : <span class="str">'Ocultar senha'</span>);
+});
+ 
+<span class="cm">// ===== FETCH API — introdução (para quando conectar ao backend) =====</span>
+<span class="kw">const</span> <span class="fn">fazerLogin</span> = <span class="kw">async</span> (<span class="var2">email</span>, <span class="var2">senha</span>) => {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> <span class="var2">resposta</span> = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.gennus.com/auth/login'</span>, {
+      method: <span class="str">'POST'</span>,
+      headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+      body: JSON.<span class="fn">stringify</span>({ <span class="var2">email</span>, <span class="var2">senha</span> })
+    });
+ 
+    <span class="kw">const</span> <span class="var2">dados</span> = <span class="kw">await</span> <span class="var2">resposta</span>.<span class="fn">json</span>();
+ 
+    <span class="kw">if</span> (<span class="var2">resposta</span>.ok) {
+      <span class="cm">// sucesso: salva o token e redireciona</span>
+      localStorage.<span class="fn">setItem</span>(<span class="str">'token'</span>, <span class="var2">dados</span>.token);
+      window.location.href = <span class="str">'/dashboard'</span>;
+    } <span class="kw">else</span> {
+      <span class="fn">setError</span>(<span class="var2">emailInput</span>, <span class="var2">dados</span>.message || <span class="str">'Credenciais inválidas'</span>);
+    }
+  } <span class="kw">catch</span> (<span class="var2">err</span>) {
+    console.<span class="fn">error</span>(<span class="str">'Erro de conexão:'</span>, <span class="var2">err</span>);
+  }
+};</code></pre>
+</div>
+ 
+<!-- ==================== CAPÍTULO 4 — PROJETO COMPLETO ==================== -->
+<div class="chapter-header page-break">
+  <span class="chapter-num">Capítulo 04</span>
+  <h1>Unindo HTML + CSS + JS: O Projeto Completo</h1>
+  <p>Teoria é boa. Código rodando é melhor. Aqui você vai ver as três tecnologias conversando em um componente real.</p>
+  <span class="chapter-icon">🔗</span>
+</div>
+ 
+<h2 class="section">O Modelo Mental</h2>
+ 
+<div class="diagram">┌─────────────────────────────────────────────────────┐
+│                   SUA PÁGINA WEB                    │
+├─────────────────┬─────────────────┬─────────────────┤
+│      HTML       │       CSS       │   JAVASCRIPT    │
+│  "O que existe" │  "Como parece"  │ "O que faz"     │
+│                 │                 │                 │
+│  &lt;button&gt;       │  background:    │  addEventListener│
+│  &lt;form&gt;         │  linear-gradient│  classList.toggle│
+│  &lt;input&gt;        │  border-radius  │  fetch()        │
+│  &lt;nav&gt;          │  @keyframes     │  querySelector  │
+│                 │                 │                 │
+│  Estrutura      │  Estilo         │  Comportamento  │
+│  Esqueleto      │  Aparência      │  Interação      │
+│  Blueprint      │  Pintura        │  Automação      │
+└─────────────────┴─────────────────┴─────────────────┘
+ 
+    FLUXO DE CONSTRUÇÃO DE UM COMPONENTE:
+    
+    1. HTML → escreva a estrutura primeiro
+    2. CSS  → aplique o estilo básico
+    3. CSS  → adicione hover, focus, animações
+    4. JS   → adicione interatividade
+    5. JS   → conecte à API (quando necessário)</div>
+ 
+<h2 class="section">Construindo um Feature Card — Passo a Passo</h2>
+ 
+<h3 class="subsection">Passo 1: HTML — A Estrutura</h3>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang html">HTML</span>
+  </div>
+<pre><code><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"feature-card"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"card-icon"</span><span class="tag">&gt;</span>📊<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;h3&gt;</span>Dashboard em Tempo Real<span class="tag">&lt;/h3&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Monitore KPIs críticos sem atualizar a página.<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="str">"button"</span> <span class="attr">class</span>=<span class="str">"btn btn-outline btn-sm card-btn"</span><span class="tag">&gt;</span>
+    Saiba mais
+  <span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code></pre>
+</div>
+ 
+<h3 class="subsection">Passo 2: CSS — O Estilo Base</h3>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS</span>
+  </div>
+<pre><code><span class="sel">.feature-card</span> {
+  <span class="prop">background</span>: <span class="kw">var</span>(<span class="var2">--color-surface</span>);
+  <span class="prop">border</span>: <span class="num">1px</span> solid <span class="kw">var</span>(<span class="var2">--color-border</span>);
+  <span class="prop">border-radius</span>: <span class="kw">var</span>(<span class="var2">--radius</span>);
+  <span class="prop">padding</span>: <span class="num">32px</span>;
+  <span class="prop">display</span>: flex;
+  <span class="prop">flex-direction</span>: column;
+  <span class="prop">gap</span>: <span class="num">16px</span>;
+  <span class="prop">position</span>: relative;
+  <span class="prop">overflow</span>: hidden;
+  <span class="prop">cursor</span>: pointer;
+  <span class="prop">transition</span>: transform <span class="num">0.3s</span> ease, box-shadow <span class="num">0.3s</span> ease, border-color <span class="num">0.3s</span> ease;
+}
+ 
+<span class="cm">/* Linha decorativa no topo (pseudo-elemento) */</span>
+<span class="sel">.feature-card::before</span> {
+  <span class="prop">content</span>: <span class="str">''</span>;
+  <span class="prop">position</span>: absolute;
+  <span class="prop">top</span>: <span class="num">0</span>; <span class="prop">left</span>: <span class="num">0</span>; <span class="prop">right</span>: <span class="num">0</span>;
+  <span class="prop">height</span>: <span class="num">2px</span>;
+  <span class="prop">background</span>: linear-gradient(<span class="num">90deg</span>, <span class="kw">var</span>(<span class="var2">--color-accent</span>), transparent);
+  <span class="prop">opacity</span>: <span class="num">0</span>;
+  <span class="prop">transition</span>: opacity <span class="num">0.3s</span> ease;
+}
+ 
+<span class="sel">.feature-card:hover</span> {
+  <span class="prop">transform</span>: translateY(<span class="num">-8px</span>);
+  <span class="prop">border-color</span>: rgba(<span class="num">108, 99, 255, 0.4</span>);
+  <span class="prop">box-shadow</span>: <span class="num">0 20px 40px</span> rgba(<span class="num">0, 0, 0, 0.4</span>),
+               <span class="num">0 0 0 1px</span> rgba(<span class="num">108, 99, 255, 0.2</span>);
+}
+ 
+<span class="sel">.feature-card:hover::before</span> {
+  <span class="prop">opacity</span>: <span class="num">1</span>; <span class="cm">/* linha aparece no hover */</span>
+}
+ 
+<span class="sel">.card-icon</span> {
+  <span class="prop">font-size</span>: <span class="num">2rem</span>;
+  <span class="prop">width</span>: <span class="num">56px</span>; <span class="prop">height</span>: <span class="num">56px</span>;
+  <span class="prop">background</span>: rgba(<span class="num">108, 99, 255, 0.1</span>);
+  <span class="prop">border-radius</span>: <span class="num">12px</span>;
+  <span class="prop">display</span>: grid;
+  <span class="prop">place-items</span>: center;
+}
+ 
+<span class="sel">.feature-card h3</span> { <span class="prop">color</span>: #fff; <span class="prop">font-size</span>: <span class="num">1.1rem</span>; }
+<span class="sel">.feature-card p</span>  { <span class="prop">color</span>: <span class="kw">var</span>(<span class="var2">--color-text-muted</span>); <span class="prop">font-size</span>: <span class="num">14px</span>; <span class="prop">line-height</span>: <span class="num">1.6</span>; }
+<span class="sel">.card-btn</span>         { <span class="prop">align-self</span>: flex-start; <span class="prop">margin-top</span>: auto; }</code></pre>
+</div>
+ 
+<h3 class="subsection">Passo 3: JavaScript — A Interatividade</h3>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang js">JS</span>
+  </div>
+<pre><code><span class="cm">// Adiciona efeito de entrada animada ao rolar a página (Intersection Observer)</span>
+<span class="kw">const</span> <span class="var2">cards</span> = document.<span class="fn">querySelectorAll</span>(<span class="str">'.feature-card'</span>);
+ 
+<span class="kw">const</span> <span class="var2">observer</span> = <span class="kw">new</span> <span class="fn">IntersectionObserver</span>((<span class="var2">entries</span>) => {
+  <span class="var2">entries</span>.<span class="fn">forEach</span>((<span class="var2">entry</span>, <span class="var2">i</span>) => {
+    <span class="kw">if</span> (<span class="var2">entry</span>.isIntersecting) {
+      <span class="cm">// Delay escalonado: cada card aparece 100ms depois do anterior</span>
+      setTimeout(() => {
+        <span class="var2">entry</span>.target.classList.<span class="fn">add</span>(<span class="str">'visible'</span>);
+      }, <span class="var2">i</span> * <span class="num">100</span>);
+      <span class="var2">observer</span>.<span class="fn">unobserve</span>(<span class="var2">entry</span>.target); <span class="cm">// para de observar depois de animar</span>
+    }
+  });
+}, { threshold: <span class="num">0.1</span> }); <span class="cm">// dispara quando 10% do card está visível</span>
+ 
+<span class="var2">cards</span>.<span class="fn">forEach</span>(<span class="var2">card</span> => <span class="var2">observer</span>.<span class="fn">observe</span>(<span class="var2">card</span>));
+ 
+<span class="cm">// CSS necessário para o efeito acima:</span>
+<span class="cm">/*
+.feature-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.feature-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+*/</span></code></pre>
+</div>
+ 
+<!-- ==================== CAPÍTULO 5 — IDENTIDADE VISUAL ==================== -->
+<div class="chapter-header page-break">
+  <span class="chapter-num">Capítulo 05</span>
+  <h1>Identidade Visual &amp; Criatividade Frontend</h1>
+  <p>Ter uma estética pessoal reconhecível é diferencial de mercado. Aqui você formaliza a sua — e aprende a quebrá-la quando o cliente pede outra coisa.</p>
+  <span class="chapter-icon">✦</span>
+</div>
+ 
+<h2 class="section">Sua Paleta de Cores (Dark Fintech)</h2>
+<p>Um sistema de cores profissional não é uma lista de hexadecimais — é uma hierarquia. Cada cor tem um propósito.</p>
+ 
+<div class="palette">
+  <div class="swatch"><div class="swatch-color" style="background:#0d0d1a;"></div><p>#0d0d1a</p><p style="color:#6272a4;font-size:9px;">BG</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#1e1e3f;"></div><p>#1e1e3f</p><p style="color:#6272a4;font-size:9px;">Surface</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#2a2a5a;"></div><p>#2a2a5a</p><p style="color:#6272a4;font-size:9px;">Border</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#6c63ff;"></div><p>#6c63ff</p><p style="color:#6272a4;font-size:9px;">Accent</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#a78bfa;"></div><p>#a78bfa</p><p style="color:#6272a4;font-size:9px;">Accent2</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#38bdf8;"></div><p>#38bdf8</p><p style="color:#6272a4;font-size:9px;">Info</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#34d399;"></div><p>#34d399</p><p style="color:#6272a4;font-size:9px;">Success</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#f87171;"></div><p>#f87171</p><p style="color:#6272a4;font-size:9px;">Error</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#e2e8f0;"></div><p>#e2e8f0</p><p style="color:#6272a4;font-size:9px;">Text</p></div>
+  <div class="swatch"><div class="swatch-color" style="background:#94a3b8;"></div><p>#94a3b8</p><p style="color:#6272a4;font-size:9px;">Muted</p></div>
+</div>
+ 
+<h2 class="section">Template de CSS Variables — Copie e Use</h2>
+ 
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+    <span class="code-lang css">CSS · design-tokens.css</span>
+  </div>
+<pre><code><span class="sel">:root</span> {
+  <span class="cm">/* ── CORES ─────────────────────────────────── */</span>
+  <span class="var2">--color-bg</span>:           <span class="num">#0d0d1a</span>;  <span class="cm">/* fundo principal da página */</span>
+  <span class="var2">--color-bg-2</span>:         <span class="num">#12122a</span>;  <span class="cm">/* fundo levemente mais claro */</span>
+  <span class="var2">--color-surface</span>:      <span class="num">#1e1e3f</span>;  <span class="cm">/* cards, modais, dropdowns */</span>
+  <span class="var2">--color-surface-2</span>:    <span class="num">#252550</span>;  <span class="cm">/* headers de cards, tabelas */</span>
+  <span class="var2">--color-border</span>:       <span class="num">#2a2a5a</span>;  <span class="cm">/* bordas sutis */</span>
+ 
+  <span class="var2">--color-accent</span>:       <span class="num">#6c63ff</span>;  <span class="cm">/* roxo principal: CTAs, links ativos */</span>
+  <span class="var2">--color-accent-2</span>:     <span class="num">#a78bfa</span>;  <span class="cm">/* roxo claro: títulos, highlights */</span>
+  <span class="var2">--color-accent-3</span>:     <span class="num">#38bdf8</span>;  <span class="cm">/* azul ciano: info, tags */</span>
+ 
+  <span class="var2">--color-success</span>:      <span class="num">#34d399</span>;  <span class="cm">/* verde: validação, sucesso */</span>
+  <span class="var2">--color-warning</span>:      <span class="num">#fb923c</span>;  <span class="cm">/* laranja: alertas */</span>
+  <span class="var2">--color-error</span>:        <span class="num">#f87171</span>;  <span class="cm">/* vermelho: erros */</span>
+ 
+  <span class="var2">--color-text</span>:         <span class="num">#e2e8f0</span>;  <span class="cm">/* texto principal */</span>
+  <span class="var2">--color-text-muted</span>:   <span class="num">#94a3b8</span>;  <span class="cm">/* texto secundário, placeholders */</span>
+  <span class="var2">--color-text-subtle</span>:  <span class="num">#64748b</span>;  <span class="cm">/* texto terciário, metadados */</span>
+ 
+  <span class="cm">/* ── TIPOGRAFIA ────────────────────────────── */</span>
+  <span class="var2">--font-sans</span>:  <span class="str">'Inter'</span>, system-ui, -apple-system, sans-serif;
+  <span class="var2">--font-mono</span>:  <span class="str">'JetBrains Mono'</span>, <span class="str">'Fira Code'</span>, monospace;
+ 
+  <span class="var2">--text-xs</span>:    <span class="num">0.75rem</span>;   <span class="cm">/* 12px */</span>
+  <span class="var2">--text-sm</span>:    <span class="num">0.875rem</span>;  <span class="cm">/* 14px */</span>
+  <span class="var2">--text-base</span>:  <span class="num">1rem</span>;      <span class="cm">/* 16px */</span>
+  <span class="var2">--text-lg</span>:    <span class="num">1.125rem</span>;  <span class="cm">/* 18px */</span>
+  <span class="var2">--text-xl</span>:    <span class="num">1.25rem</span>;   <span class="cm">/* 20px */</span>
+  <span class="var2">--text-2xl</span>:   <span class="num">1.5rem</span>;    <span class="cm">/* 24px */</span>
+  <span class="var2">--text-3xl</span>:   <span class="num">2rem</span>;      <span class="cm">/* 32px */</span>
+  <span class="var2">--text-4xl</span>:   <span class="num">2.5rem</span>;    <span class="cm">/* 40px */</span>
+ 
+  <span class="cm">/* ── ESPAÇAMENTO ───────────────────────────── */</span>
+  <span class="var2">--space-1</span>:    <span class="num">4px</span>;
+  <span class="var2">--space-2</span>:    <span class="num">8px</span>;
+  <span class="var2">--space-3</span>:    <span class="num">12px</span>;
+  <span class="var2">--space-4</span>:    <span class="num">16px</span>;
+  <span class="var2">--space-6</span>:    <span class="num">24px</span>;
+  <span class="var2">--space-8</span>:    <span class="num">32px</span>;
+  <span class="var2">--space-12</span>:   <span class="num">48px</span>;
+  <span class="var2">--space-16</span>:   <span class="num">64px</span>;
+ 
+  <span class="cm">/* ── BORDAS ────────────────────────────────── */</span>
+  <span class="var2">--radius-sm</span>:  <span class="num">8px</span>;
+  <span class="var2">--radius-md</span>:  <span class="num">12px</span>;
+  <span class="var2">--radius-lg</span>:  <span class="num">20px</span>;
+  <span class="var2">--radius-full</span>:<span class="num">9999px</span>;
+ 
+  <span class="cm">/* ── SOMBRAS ───────────────────────────────── */</span>
+  <span class="var2">--shadow-sm</span>:  <span class="num">0 2px 8px</span> rgba(<span class="num">0,0,0,0.3</span>);
+  <span class="var2">--shadow-md</span>:  <span class="num">0 8px 24px</span> rgba(<span class="num">0,0,0,0.4</span>);
+  <span class="var2">--shadow-lg</span>:  <span class="num">0 24px 48px</span> rgba(<span class="num">0,0,0,0.5</span>);
+  <span class="var2">--shadow-accent</span>: <span class="num">0 4px 20px</span> rgba(<span class="num">108,99,255,0.4</span>);
+ 
+  <span class="cm">/* ── TRANSIÇÕES ────────────────────────────── */</span>
+  <span class="var2">--transition-fast</span>:   all <span class="num">0.15s</span> ease;
+  <span class="var2">--transition</span>:        all <span class="num">0.25s</span> ease;
+  <span class="var2">--transition-slow</span>:   all <span class="num">0.4s</span> ease;
+}</code></pre>
+</div>
+ 
+<h2 class="section">Princípios de UI que Você Precisa Internalizar</h2>
+ 
+<table>
+  <thead><tr><th>Princípio</th><th>O que é</th><th>Como aplicar</th></tr></thead>
+  <tbody>
+    <tr><td>Hierarquia Visual</td><td>O olho segue uma ordem. O mais importante precisa ser o mais destacado.</td><td>Tamanho de fonte: h1 grande, h2 médio, p pequeno. Contraste: cor forte em CTAs, sutil em texto secundário.</td></tr>
+    <tr><td>Espaçamento</td><td>Espaço em branco não é desperdício — é respiração. Elementos agrupados próximos comunicam relação.</td><td>Use um sistema: gap de 8px entre elementos internos, 32px entre seções. Nunca espaços aleatórios.</td></tr>
+    <tr><td>Contraste</td><td>Texto ilegível é design ruim. Ratio mínimo recomendado: 4.5:1 (WCAG AA).</td><td>Texto branco puro (#fff) no fundo escuro (#0d0d1a) tem contraste excelente. Evite cinza claro em cinza escuro.</td></tr>
+    <tr><td>Consistência</td><td>Botões primários têm sempre o mesmo estilo. Títulos têm sempre a mesma fonte. O usuário aprende seu sistema.</td><td>Use CSS variables. Crie classes reutilizáveis (.btn, .card, .badge). Nunca estilos inline repetidos.</td></tr>
+    <tr><td>Feedback</td><td>O usuário precisa saber que aconteceu algo quando clica ou preenche.</td><td>Hover com transição, estado de loading no botão, mensagem de erro clara, estado de sucesso visível.</td></tr>
+  </tbody>
+</table>
+ 
+<h2 class="section">Como Pensar Fora da Caixa</h2>
+<p>Seu estilo pessoal é ótimo para SaaS e fintech. Mas clientes são variados. Aqui está como adaptar:</p>
+ 
+<table>
+  <thead><tr><th>Tipo de cliente</th><th>Estética esperada</th><th>Palavras-chave de design</th></tr></thead>
+  <tbody>
+    <tr><td>Fintech / SaaS</td><td>Dark mode, gradientes roxo/azul, glassmorphism, tipografia Inter</td><td>Confiança, modernidade, precisão</td></tr>
+    <tr><td>Startup</td><td>Light mode vibrante, gradientes coloridos, ilustrações, bordas arredondadas</td><td>Energia, ousadia, inovação</td></tr>
+    <tr><td>Corporativo / Jurídico</td><td>Branco, cinza, azul navy. Sóbrio, sem exageros, tipografia Serif</td><td>Seriedade, tradição, credibilidade</td></tr>
+    <tr><td>E-commerce</td><td>Limpo, imagens grandes, botões destacados, foco no produto</td><td>Conversão, desejo, facilidade</td></tr>
+    <tr><td>Portfólio criativo</td><td>Experimental, único, pode quebrar todas as regras intencionalmente</td><td>Personalidade, memória, impacto</td></tr>
+  </tbody>
+</table>
+ 
+<div class="info">Para referência e inspiração, acesse regularmente: <strong>dribbble.com</strong>, <strong>awwwards.com</strong>, <strong>mobbin.com</strong> (apps reais), e <strong>ui.aceternity.com</strong> (componentes dark fintech modernos).</div>
+ 
+<h2 class="section">5 Desafios Criativos Progressivos</h2>
+ 
+<div class="challenge-grid">
+  <div class="challenge">
+    <div class="challenge-num">01</div>
+    <div>
+      <span class="diff-badge easy">Fácil</span>
+      <h4>Dark Mode Toggle</h4>
+      <p>Crie uma página simples com um botão que alterna entre modo claro e modo escuro. Use CSS variables para as cores e JavaScript para trocar uma classe no <code>&lt;body&gt;</code>. Sem frameworks.</p>
+    </div>
+  </div>
+  <div class="challenge">
+    <div class="challenge-num">02</div>
+    <div>
+      <span class="diff-badge easy">Fácil</span>
+      <h4>Card de Perfil Glassmorphism</h4>
+      <p>Monte um card de perfil com foto circular, nome, cargo e redes sociais. Aplique o efeito glassmorphism com <code>backdrop-filter</code> sobre um fundo com gradiente. Inclua animação de hover.</p>
+    </div>
+  </div>
+  <div class="challenge">
+    <div class="challenge-num">03</div>
+    <div>
+      <span class="diff-badge medium">Médio</span>
+      <h4>Formulário com Validação em Tempo Real</h4>
+      <p>Crie um formulário de cadastro completo (nome, e-mail, CPF, senha, confirmação). Valide cada campo no evento <code>blur</code> e no <code>submit</code>. Mostre mensagens de erro e estados visuais de sucesso/erro nos inputs.</p>
+    </div>
+  </div>
+  <div class="challenge">
+    <div class="challenge-num">04</div>
+    <div>
+      <span class="diff-badge medium">Médio</span>
+      <h4>Landing Page Completa Responsiva</h4>
+      <p>Construa uma landing page com hero, seção de features (3 cards), seção de preços (3 planos) e footer. Deve funcionar perfeitamente em mobile (hamburger menu) e desktop. Tudo vanilla HTML/CSS/JS.</p>
+    </div>
+  </div>
+  <div class="challenge">
+    <div class="challenge-num">05</div>
+    <div>
+      <span class="diff-badge hard">Avançado</span>
+      <h4>Dashboard Mini com Fetch</h4>
+      <p>Crie um dashboard simples que busca dados de uma API pública (ex: <code>jsonplaceholder.typicode.com</code>) e exibe os resultados em cards com loading state, tratamento de erro e estado vazio. Use <code>async/await</code> + <code>fetch()</code>.</p>
+    </div>
+  </div>
+</div>
+ 
+<!-- ==================== CAPÍTULO 6 — CHEAT SHEET ==================== -->
+<div class="chapter-header page-break">
+  <span class="chapter-num">Capítulo 06</span>
+  <h1>Cheat Sheet — Referência Rápida</h1>
+  <p>Imprima, deixe aberto numa aba ou use como lookup rápido durante o trabalho. Tudo que importa numa página.</p>
+  <span class="chapter-icon">📋</span>
+</div>
+ 
+<div class="cheat-section">
+  <h3>HTML — Tags Essenciais</h3>
+  <table>
+    <thead><tr><th>Tag</th><th>O que é</th><th>Uso típico</th></tr></thead>
+    <tbody>
+      <tr><td>&lt;!DOCTYPE html&gt;</td><td>Declaração de versão</td><td>Sempre na 1ª linha</td></tr>
+      <tr><td>&lt;html lang=""&gt;</td><td>Raiz do documento</td><td>Envolve tudo</td></tr>
+      <tr><td>&lt;head&gt;</td><td>Metadados (invisíveis)</td><td>meta, link, title</td></tr>
+      <tr><td>&lt;meta charset="UTF-8"&gt;</td><td>Codificação</td><td>Suporte a acentos</td></tr>
+      <tr><td>&lt;meta name="viewport"&gt;</td><td>Responsividade mobile</td><td>width=device-width</td></tr>
+      <tr><td>&lt;link rel="stylesheet"&gt;</td><td>Conecta CSS externo</td><td>href="style.css"</td></tr>
+      <tr><td>&lt;header&gt;</td><td>Cabeçalho semântico</td><td>Logo, nav</td></tr>
+      <tr><td>&lt;nav&gt;</td><td>Navegação</td><td>Links principais</td></tr>
+      <tr><td>&lt;main&gt;</td><td>Conteúdo principal</td><td>1x por página</td></tr>
+      <tr><td>&lt;section&gt;</td><td>Seção temática</td><td>Hero, features, preços</td></tr>
+      <tr><td>&lt;div&gt;</td><td>Container genérico</td><td>Agrupamento visual</td></tr>
+      <tr><td>&lt;h1&gt;→&lt;h6&gt;</td><td>Hierarquia de títulos</td><td>h1 = 1 por página</td></tr>
+      <tr><td>&lt;p&gt;</td><td>Parágrafo</td><td>Texto corrido</td></tr>
+      <tr><td>&lt;span&gt;</td><td>Inline genérico</td><td>Estilizar parte do texto</td></tr>
+      <tr><td>&lt;a href=""&gt;</td><td>Link</td><td>Navegação, CTAs</td></tr>
+      <tr><td>&lt;img src="" alt=""&gt;</td><td>Imagem</td><td>Alt sempre obrigatório</td></tr>
+      <tr><td>&lt;form id=""&gt;</td><td>Formulário</td><td>Agrupar inputs</td></tr>
+      <tr><td>&lt;input type=""&gt;</td><td>Campo de entrada</td><td>text, email, password, checkbox</td></tr>
+      <tr><td>&lt;label for=""&gt;</td><td>Rótulo do input</td><td>for= id do input</td></tr>
+      <tr><td>&lt;button type=""&gt;</td><td>Botão</td><td>submit, button</td></tr>
+      <tr><td>&lt;footer&gt;</td><td>Rodapé semântico</td><td>Links, créditos</td></tr>
+      <tr><td>&lt;script src=""&gt;</td><td>JavaScript</td><td>Final do body</td></tr>
+    </tbody>
+  </table>
+</div>
+ 
+<div class="cheat-section">
+  <h3>CSS — Propriedades Mais Usadas</h3>
+  <table>
+    <thead><tr><th>Propriedade</th><th>O que faz</th><th>Exemplo</th></tr></thead>
+    <tbody>
+      <tr><td>display</td><td>Tipo de renderização</td><td>flex / grid / block / none</td></tr>
+      <tr><td>flex-direction</td><td>Eixo do flexbox</td><td>row / column</td></tr>
+      <tr><td>justify-content</td><td>Alinha no eixo principal</td><td>space-between / center</td></tr>
+      <tr><td>align-items</td><td>Alinha no eixo cruzado</td><td>center / flex-start</td></tr>
+      <tr><td>gap</td><td>Espaço entre filhos</td><td>16px / 24px</td></tr>
+      <tr><td>grid-template-columns</td><td>Colunas do grid</td><td>repeat(auto-fill, minmax(280px, 1fr))</td></tr>
+      <tr><td>position</td><td>Tipo de posicionamento</td><td>relative / absolute / fixed / sticky</td></tr>
+      <tr><td>z-index</td><td>Camada de sobreposição</td><td>10 / 100 / 999</td></tr>
+      <tr><td>width / max-width</td><td>Largura / largura máxima</td><td>100% / 1200px</td></tr>
+      <tr><td>padding</td><td>Espaço interno</td><td>16px / 12px 24px</td></tr>
+      <tr><td>margin</td><td>Espaço externo</td><td>0 auto / 32px 0</td></tr>
+      <tr><td>background</td><td>Fundo</td><td>#0d0d1a / linear-gradient(...)</td></tr>
+      <tr><td>backdrop-filter</td><td>Filtro no fundo (glass)</td><td>blur(20px)</td></tr>
+      <tr><td>color</td><td>Cor do texto</td><td>#e2e8f0 / var(--color-text)</td></tr>
+      <tr><td>font-family</td><td>Família tipográfica</td><td>'Inter', sans-serif</td></tr>
+      <tr><td>font-size</td><td>Tamanho da fonte</td><td>1rem / clamp(2rem, 5vw, 3.5rem)</td></tr>
+      <tr><td>font-weight</td><td>Peso da fonte</td><td>400 / 600 / 700 / 800</td></tr>
+      <tr><td>line-height</td><td>Altura da linha</td><td>1.6 / 1.7</td></tr>
+      <tr><td>letter-spacing</td><td>Espaço entre letras</td><td>2px / -0.5px</td></tr>
+      <tr><td>border-radius</td><td>Arredondamento</td><td>8px / 12px / 9999px</td></tr>
+      <tr><td>box-shadow</td><td>Sombra do elemento</td><td>0 4px 20px rgba(0,0,0,0.4)</td></tr>
+      <tr><td>opacity</td><td>Transparência (0-1)</td><td>0.5 / 1</td></tr>
+      <tr><td>transition</td><td>Animação entre estados</td><td>all 0.25s ease</td></tr>
+      <tr><td>transform</td><td>Transformação 2D/3D</td><td>translateY(-8px) / rotate(45deg)</td></tr>
+      <tr><td>animation</td><td>Animação por keyframe</td><td>fadeInUp 0.6s ease both</td></tr>
+      <tr><td>@keyframes</td><td>Define animação</td><td>from { opacity: 0 } to { opacity: 1 }</td></tr>
+      <tr><td>@media</td><td>Regras responsivas</td><td>@media (min-width: 768px) {}</td></tr>
+      <tr><td>:hover / :focus / :active</td><td>Pseudo-classes de estado</td><td>.btn:hover { ... }</td></tr>
+      <tr><td>::before / ::after</td><td>Pseudo-elementos</td><td>content: '' / decoração</td></tr>
+      <tr><td>var(--nome)</td><td>Usa CSS variable</td><td>color: var(--color-accent)</td></tr>
+      <tr><td>overflow</td><td>Controla conteúdo que extrapola</td><td>hidden / auto / scroll</td></tr>
+      <tr><td>cursor</td><td>Cursor do mouse</td><td>pointer / not-allowed</td></tr>
+    </tbody>
+  </table>
+</div>
+ 
+<div class="cheat-section">
+  <h3>JavaScript — Métodos e Conceitos Essenciais</h3>
+  <table>
+    <thead><tr><th>Método / Conceito</th><th>O que faz</th><th>Exemplo</th></tr></thead>
+    <tbody>
+      <tr><td>querySelector()</td><td>Seleciona 1º elemento com seletor CSS</td><td>document.querySelector('#btn')</td></tr>
+      <tr><td>querySelectorAll()</td><td>Seleciona todos os elementos</td><td>document.querySelectorAll('.card')</td></tr>
+      <tr><td>getElementById()</td><td>Seleciona por ID (rápido)</td><td>document.getElementById('email')</td></tr>
+      <tr><td>addEventListener()</td><td>Escuta um evento</td><td>el.addEventListener('click', fn)</td></tr>
+      <tr><td>classList.add()</td><td>Adiciona classe CSS</td><td>el.classList.add('active')</td></tr>
+      <tr><td>classList.remove()</td><td>Remove classe CSS</td><td>el.classList.remove('active')</td></tr>
+      <tr><td>classList.toggle()</td><td>Alterna classe CSS</td><td>el.classList.toggle('open')</td></tr>
+      <tr><td>classList.contains()</td><td>Verifica se tem a classe</td><td>el.classList.contains('active')</td></tr>
+      <tr><td>textContent</td><td>Lê/define texto do elemento</td><td>el.textContent = 'Novo texto'</td></tr>
+      <tr><td>innerHTML</td><td>Lê/define HTML interno</td><td>el.innerHTML = '&lt;b&gt;Negrito&lt;/b&gt;'</td></tr>
+      <tr><td>value</td><td>Valor de input/select</td><td>input.value</td></tr>
+      <tr><td>setAttribute()</td><td>Define atributo</td><td>el.setAttribute('type', 'text')</td></tr>
+      <tr><td>getAttribute()</td><td>Lê atributo</td><td>el.getAttribute('href')</td></tr>
+      <tr><td>style.property</td><td>Estilo inline via JS</td><td>el.style.opacity = '0'</td></tr>
+      <tr><td>forEach()</td><td>Itera sobre array/NodeList</td><td>items.forEach(item => ...)</td></tr>
+      <tr><td>e.preventDefault()</td><td>Cancela ação padrão do evento</td><td>form.addEventListener('submit', e => e.preventDefault())</td></tr>
+      <tr><td>e.target</td><td>Elemento que disparou o evento</td><td>e.target.value</td></tr>
+      <tr><td>const / let</td><td>Declaração de variável</td><td>const nome = 'Carlos'</td></tr>
+      <tr><td>Arrow Function</td><td>Função concisa</td><td>const fn = (x) => x * 2</td></tr>
+      <tr><td>Template literal</td><td>String com interpolação</td><td>`Olá ${nome}!`</td></tr>
+      <tr><td>Ternário</td><td>If/else inline</td><td>x > 0 ? 'positivo' : 'negativo'</td></tr>
+      <tr><td>trim()</td><td>Remove espaços da string</td><td>'  texto  '.trim() → 'texto'</td></tr>
+      <tr><td>includes()</td><td>Verifica se string/array contém</td><td>'email@x'.includes('@')</td></tr>
+      <tr><td>length</td><td>Tamanho de string/array</td><td>'abc'.length → 3</td></tr>
+      <tr><td>async/await</td><td>Código assíncrono legível</td><td>const dados = await fetch(url)</td></tr>
+      <tr><td>fetch()</td><td>Faz requisição HTTP</td><td>fetch('/api/users')</td></tr>
+      <tr><td>JSON.stringify()</td><td>Objeto → string JSON</td><td>JSON.stringify({ nome: 'Carlos' })</td></tr>
+      <tr><td>JSON.parse()</td><td>String JSON → objeto</td><td>JSON.parse('{"nome":"Carlos"}')</td></tr>
+      <tr><td>console.log()</td><td>Imprime no console do navegador</td><td>console.log('debug', variavel)</td></tr>
+      <tr><td>setTimeout()</td><td>Executa após delay</td><td>setTimeout(() => fn(), 300)</td></tr>
+      <tr><td>IntersectionObserver</td><td>Detecta elemento na viewport</td><td>new IntersectionObserver(callback)</td></tr>
+    </tbody>
+  </table>
+</div>
+ 
+<div class="cheat-section">
+  <h3>Pseudo-classes e Seletores CSS Úteis</h3>
+  <table>
+    <thead><tr><th>Seletor</th><th>O que seleciona</th></tr></thead>
+    <tbody>
+      <tr><td>:hover</td><td>Elemento com mouse em cima</td></tr>
+      <tr><td>:focus</td><td>Elemento com foco (teclado/clique)</td></tr>
+      <tr><td>:active</td><td>Elemento sendo clicado</td></tr>
+      <tr><td>:focus-visible</td><td>Foco visível apenas via teclado (melhor para UX)</td></tr>
+      <tr><td>:first-child</td><td>Primeiro filho do pai</td></tr>
+      <tr><td>:last-child</td><td>Último filho do pai</td></tr>
+      <tr><td>:nth-child(n)</td><td>Filho na posição n</td></tr>
+      <tr><td>:nth-child(even/odd)</td><td>Filhos pares/ímpares</td></tr>
+      <tr><td>:not(seletor)</td><td>Todos EXCETO o seletor</td></tr>
+      <tr><td>::before / ::after</td><td>Pseudo-elemento antes/depois do conteúdo</td></tr>
+      <tr><td>::placeholder</td><td>Texto placeholder do input</td></tr>
+      <tr><td>:checked</td><td>Checkbox/radio marcado</td></tr>
+      <tr><td>:disabled</td><td>Campo desabilitado</td></tr>
+      <tr><td>[atributo="valor"]</td><td>Elemento com atributo específico</td></tr>
+      <tr><td>.pai > .filho</td><td>Filho DIRETO</td></tr>
+      <tr><td>.irmao + .proximo</td><td>Próximo irmão adjacente</td></tr>
+    </tbody>
+  </table>
+</div>
+ 
+<!-- PRÓXIMOS PASSOS -->
+<div class="next-steps">
+  <h3>🚀 Próximos Passos: Para Além do Vanilla</h3>
+  <p>Você vai chegar em um ponto onde projetos maiores vão pedir mais organização. Aqui está o mapa:</p>
+  <ul>
+    <li><strong>Git e GitHub</strong> — Controle de versão. Essencial para qualquer projeto profissional. Comece aqui antes de frameworks.</li>
+    <li><strong>Node.js + NPM</strong> — Ecossistema de ferramentas. Vai permitir usar bundlers, linters e a maioria das libs modernas.</li>
+    <li><strong>React ou Vue</strong> — Frameworks JavaScript para interfaces complexas e reativas. React domina o mercado de emprego. Vue tem curva de aprendizado menor. Aprenda depois de dominar o vanilla.</li>
+    <li><strong>Tailwind CSS</strong> — Framework utilitário de CSS. Extremamente popular em projetos React/Vue. Aprenda depois de entender bem o CSS nativo (que você já está fazendo).</li>
+    <li><strong>TypeScript</strong> — JavaScript com tipos estáticos. Padrão em empresas maiores. Aprenda JavaScript puro primeiro.</li>
+    <li><strong>Vite ou Next.js</strong> — Ferramentas de build modernas. Vite para projetos simples, Next.js para projetos React com SSR.</li>
+  </ul>
+  <p style="margin-top:16px; color: var(--color-text-muted); font-size: 13px;">A base que você construiu aqui — HTML semântico, CSS em controle, JS funcional — é o que separa devs que entendem de devs que apenas copiam e colam de frameworks. Frameworks mudam. Os fundamentos ficam.</p>
+</div>
+ 
+<div class="divider"></div>
+ 
+<p style="text-align:center; color: var(--text3); font-size: 13px; padding-bottom: 40px;">
+  Wiki Frontend Dev · Guia Pessoal · HTML · CSS · JS · Fintech Dark UI<br>
+  Feito para ser relido, anotado e evoluído.
+</p>
+ 
+</div><!-- /container -->
+</body>
+</html>
+ 
